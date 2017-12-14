@@ -1,3 +1,36 @@
 <resources>
     <string name="app_name">Radio-T</string>
+
+    <!--Calligraphy Config-->
+    <string name="font_main_regular">fonts/Roboto-Regular.ttf</string>
+    <string name="font_main_medium">fonts/Roboto-Medium.ttf</string>
+
+    <string name="ok">Да</string>
+    <string name="cancel">Отмена</string>
+
+    <!--Navigation drawer-->
+    <string name="last_entries_item">Последние выпуски</string>
+    <string name="all_podcasts_item">Все выпуски</string>
+    <string name="search_item">Поиск</string>
+
+    <!--Error messages-->
+    <string name="unknown_error">Unknown error</string>
+    <string name="network_error">Network error</string>
+    <string name="not_modified_error">304 Not Modified</string>
+    <string name="bad_request_error">400 Bad Request</string>
+    <string name="unauthorized_error">401 Unauthorized</string>
+    <string name="forbidden_error">403 Forbidden</string>
+    <string name="not_found_error">404 Not Found</string>
+    <string name="method_not_allowed_error">405 Method Not Allowed</string>
+    <string name="conflict_error">409 Conflict</string>
+    <string name="unprocessable_error">422 Unprocessable</string>
+    <string name="server_error_error">500 Server Error</string>
+
+    <!--Time-->
+    <string name="time_sec" formatted="false">%d sec</string>
+    <string name="time_min" formatted="false">%d min</string>
+    <string name="time_hour" formatted="false">%d h</string>
+    <string name="time_day" formatted="false">%d d</string>
+    <string name="time_ago" formatted="false">%s ago</string>
+
 </resources>

@@ -1,17 +1,31 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 27
+    buildToolsVersion '27.0.2'
+
     defaultConfig {
         applicationId "pro.vylgin.radiot"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "ORIGIN_RADIOT_ENDPOINT", '"https://radio-t.com/"'
+
+        vectorDrawables.useSupportLibrary true
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [toothpick_registry_package_name: 'pro.vylgin.radiot']
+            }
+        }
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -20,15 +34,63 @@ android {
     }
 }
 
+kapt {
+    generateStubs true
+}
+
 ext {
     supportLibraryVersion = "27.0.2"
+    moxyVersion = "1.5.3"
+    toothpickVersion = "1.0.6"
+    retrofitVersion = "2.2.0"
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    //Support
     implementation "com.android.support:appcompat-v7:$supportLibraryVersion"
+    implementation "com.android.support:design:$supportLibraryVersion"
+    implementation "com.android.support.constraint:constraint-layout:1.0.2"
+    //Kotlin
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    //Log
+    implementation "com.jakewharton.timber:timber:4.5.1"
+    //MVP Moxy
+    kapt "com.arello-mobile:moxy-compiler:$moxyVersion"
+    implementation "com.arello-mobile:moxy-app-compat:$moxyVersion"
+    //Cicerone Navigation
+    implementation "ru.terrakok.cicerone:cicerone:2.1.0"
+    //DI
+    implementation "com.github.stephanenicolas.toothpick:toothpick-runtime:$toothpickVersion"
+    kapt "com.github.stephanenicolas.toothpick:toothpick-compiler:$toothpickVersion"
+    //Gson
+    implementation "com.google.code.gson:gson:2.8.0"
+    //Retrofit
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:3.6.0"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
+    //RxJava
+    implementation "io.reactivex.rxjava2:rxandroid:2.0.1"
+    implementation "io.reactivex.rxjava2:rxjava:2.1.5"
+    implementation 'com.jakewharton.rxrelay2:rxrelay:2.0.0'
+    //Adapter simplify
+    implementation "com.hannesdorfmann:adapterdelegates3:3.0.1"
+    //Image load and cache
+    implementation "com.github.bumptech.glide:glide:4.4.0"
+    //Bottom navigation bar
+    implementation 'com.roughike:bottom-bar:2.3.1'
+    //Custom fonts
+    implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
+    //Lottie
+    implementation 'com.airbnb.android:lottie:2.1.0'
+    //Date
+    implementation 'joda-time:joda-time:2.9.9'
+
+    //Test
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    testImplementation "org.mockito:mockito-core:2.8.9"
+    testImplementation "com.nhaarman:mockito-kotlin-kt1.1:1.5.0"
 }

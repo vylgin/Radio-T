@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <activity android:name="pro.vylgin.radiot.ui.launch.launch.MainActivity" />
+    </application>
+</manifest>
