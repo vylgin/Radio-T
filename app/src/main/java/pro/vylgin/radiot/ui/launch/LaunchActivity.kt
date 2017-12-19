@@ -1,6 +1,7 @@
 package pro.vylgin.radiot.ui.launch
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
@@ -11,6 +12,7 @@ import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_launch.*
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.Screens
+import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView
 import pro.vylgin.radiot.presentation.global.GlobalMenuController
 import pro.vylgin.radiot.presentation.launch.LaunchPresenter
@@ -94,8 +96,9 @@ class LaunchActivity : BaseActivity(), LaunchView {
             updateNavDrawer()
         }
 
-        override fun createActivityIntent(screenKey: String?, data: Any?): Intent? {
-            return null
+        override fun createActivityIntent(screenKey: String?, data: Any?): Intent?  = when (screenKey) {
+            Screens.PREP_SCREEN -> Intent(Intent.ACTION_VIEW, Uri.parse((data as Entry).url))
+            else -> null
         }
 
         override fun createFragment(screenKey: String?, data: Any?): Fragment? = when (screenKey) {

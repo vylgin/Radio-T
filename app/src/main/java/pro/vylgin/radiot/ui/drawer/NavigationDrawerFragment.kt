@@ -1,6 +1,5 @@
 package pro.vylgin.radiot.ui.drawer
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import com.arellomobile.mvp.presenter.InjectPresenter
@@ -12,16 +11,14 @@ import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView.MenuItem
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.ui.global.BaseFragment
-import pro.vylgin.radiot.ui.launch.LaunchActivity
 import toothpick.Toothpick
 
 
 class NavigationDrawerFragment : BaseFragment(), NavigationDrawerView {
     override val layoutRes = R.layout.fragment_nav_drawer
-    private var launchActivity: LaunchActivity? = null
 
     private val itemClickListener = { view: View ->
-        presenter.onMenuItemClick(view.tag as MenuItem)
+        presenter.onMenuItemClick(view.tag as NavigationDrawerView.MenuItem)
     }
 
     @InjectPresenter lateinit var presenter: NavigationDrawerPresenter
@@ -31,12 +28,6 @@ class NavigationDrawerFragment : BaseFragment(), NavigationDrawerView {
         return Toothpick
                 .openScope(DI.MAIN_ACTIVITY_SCOPE)
                 .getInstance(NavigationDrawerPresenter::class.java)
-    }
-
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        launchActivity = activity as LaunchActivity
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

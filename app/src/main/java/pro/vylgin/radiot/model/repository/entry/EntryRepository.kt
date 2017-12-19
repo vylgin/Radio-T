@@ -1,5 +1,6 @@
 package pro.vylgin.radiot.model.repository.entry
 
+import pro.vylgin.radiot.entity.Category
 import pro.vylgin.radiot.model.data.server.RadioTApi
 import pro.vylgin.radiot.model.system.SchedulersProvider
 import pro.vylgin.radiot.toothpick.PrimitiveWrapper
@@ -14,9 +15,17 @@ class EntryRepository @Inject constructor(
     private val defaultPageSize = defaultPageSizeWrapper.value
 
     fun getEntries(
-            pageSize: Int = defaultPageSize
+            pageSize: Int = defaultPageSize,
+            categories: List<Category> = mutableListOf(
+                    Category.NEWS,
+                    Category.PODCAST,
+                    Category.PREP,
+                    Category.INFO,
+                    Category.SPECIAL)
     ) = api
-            .getEntries(pageSize)
+            .getEntries(pageSize, categories
+                    .map { it.value }
+                    .reduce { acc, next -> "$acc,$next" })
             .subscribeOn(schedulers.io())
             .observeOn(schedulers.ui())
 }

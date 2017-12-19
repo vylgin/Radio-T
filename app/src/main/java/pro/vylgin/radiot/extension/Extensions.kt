@@ -56,19 +56,5 @@ fun Throwable.userMessage(resourceManager: ResourceManager) = when (this) {
 private val DATE_FORMAT = DateTimeFormat.forPattern("dd.MM.yyyy")
 fun Date.humanTime(resources: Resources): String {
     val localMillis = DateTimeZone.getDefault().convertUTCToLocal(this.time)
-    val timeDelta = (System.currentTimeMillis() - localMillis) / 1000L
-    val timeStr =
-            if (timeDelta < 60) {
-                resources.getString(R.string.time_sec, timeDelta)
-            } else if (timeDelta < 60 * 60) {
-                resources.getString(R.string.time_min, timeDelta / 60)
-            } else if (timeDelta < 60 * 60 * 24) {
-                resources.getString(R.string.time_hour, timeDelta / (60 * 60))
-            } else if (timeDelta < 60 * 60 * 24 * 7) {
-                resources.getString(R.string.time_day, timeDelta / (60 * 60 * 24))
-            } else {
-                return DATE_FORMAT.print(localMillis)
-            }
-
-    return resources.getString(R.string.time_ago, timeStr)
+    return DATE_FORMAT.print(localMillis)
 }

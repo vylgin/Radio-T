@@ -4,6 +4,7 @@ import io.reactivex.Single
 import pro.vylgin.radiot.entity.Entry
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 
 interface RadioTApi {
@@ -16,6 +17,11 @@ interface RadioTApi {
             @Path("posts") posts: Int?
             ): Single<List<Entry>>
 
+    @GET("$API_PATH/last/{posts}")
+    fun getEntries(
+            @Path("posts") posts: Int?,
+            @Query("categories") categories: String
+    ): Single<List<Entry>>
 
 
 }
