@@ -33,7 +33,7 @@ class PrepAdapterDelegate(private val clickListener: (Entry) -> Unit) : AdapterD
 
             view.titleTV.text = prep.title
             view.dateTV.text = prep.date.humanTime(view.resources)
-            view.urlTV.text = prep.url
+            view.showNotesTV.text = prep.url
         }
     }
 

@@ -28,4 +28,9 @@ class EntryRepository @Inject constructor(
                     .reduce { acc, next -> "$acc,$next" })
             .subscribeOn(schedulers.io())
             .observeOn(schedulers.ui())
+
+    fun getEntry(podcastNumber: Int) = api
+            .getEntry(podcastNumber)
+            .subscribeOn(schedulers.io())
+            .observeOn(schedulers.ui())
 }

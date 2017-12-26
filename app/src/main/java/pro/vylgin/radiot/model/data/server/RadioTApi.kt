@@ -15,13 +15,18 @@ interface RadioTApi {
     @GET("$API_PATH/last/{posts}")
     fun getEntries(
             @Path("posts") posts: Int?
-            ): Single<List<Entry>>
+    ): Single<List<Entry>>
 
     @GET("$API_PATH/last/{posts}")
     fun getEntries(
             @Path("posts") posts: Int?,
             @Query("categories") categories: String
     ): Single<List<Entry>>
+
+    @GET("$API_PATH/podcast/{podcastNumber}")
+    fun getEntry(
+            @Path("podcastNumber") podcastNumber: Int
+    ): Single<Entry>
 
 
 }

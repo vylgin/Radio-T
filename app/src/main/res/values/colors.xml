@@ -13,4 +13,5 @@
     <color name="linkBlueText">#1565C0</color>
     <color name="list_background">#dddddd</color>
     <color name="list_item_pressed">#e0e0e0</color>
+    <color name="transparent">#00000000</color>
 </resources>

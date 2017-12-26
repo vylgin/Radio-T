@@ -1,5 +1,6 @@
 package pro.vylgin.radiot.ui.lastentries
 
+import android.os.Build
 import android.os.Bundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
@@ -12,6 +13,7 @@ import kotlinx.android.synthetic.main.layout_base_list.*
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.entity.Category
 import pro.vylgin.radiot.entity.Entry
+import pro.vylgin.radiot.extension.color
 import pro.vylgin.radiot.extension.visible
 import pro.vylgin.radiot.presentation.lastentries.LastEntriesPresenter
 import pro.vylgin.radiot.presentation.lastentries.LastEntriesView
@@ -19,8 +21,6 @@ import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.ui.global.BaseFragment
 import pro.vylgin.radiot.ui.global.list.*
 import toothpick.Toothpick
-
-
 
 
 class LastEntriesFragment : BaseFragment(), LastEntriesView {
@@ -37,6 +37,14 @@ class LastEntriesFragment : BaseFragment(), LastEntriesView {
         val scope = Toothpick.openScopes(DI.MAIN_ACTIVITY_SCOPE, scopeName)
         return scope.getInstance(LastEntriesPresenter::class.java).also {
             Toothpick.closeScope(scopeName)
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            activity?.window?.statusBarColor = resources.color(R.color.colorPrimaryDark)
         }
     }
 

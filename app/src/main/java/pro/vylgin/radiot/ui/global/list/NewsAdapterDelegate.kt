@@ -35,7 +35,7 @@ class NewsAdapterDelegate(private val clickListener: (Entry) -> Unit) : AdapterD
             this.news = news
 
             view.titleTV.text = news.title
-            view.urlTV.text = news.showNotes
+            view.showNotesTV.text = news.showNotes
             view.dateTV.text = news.date.humanTime(view.resources)
 
         }

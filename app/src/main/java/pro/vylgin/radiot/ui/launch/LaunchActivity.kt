@@ -4,7 +4,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentTransaction
 import android.support.v4.view.GravityCompat
+import android.support.v4.view.ViewCompat
 import android.support.v4.widget.DrawerLayout
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
@@ -22,10 +24,14 @@ import pro.vylgin.radiot.toothpick.module.MainActivityModule
 import pro.vylgin.radiot.ui.drawer.NavigationDrawerFragment
 import pro.vylgin.radiot.ui.global.BaseActivity
 import pro.vylgin.radiot.ui.global.BaseFragment
+import pro.vylgin.radiot.ui.global.list.EntrySharedElement
 import pro.vylgin.radiot.ui.lastentries.LastEntriesFragment
+import pro.vylgin.radiot.ui.podcast.PodcastFragment
 import ru.terrakok.cicerone.NavigatorHolder
 import ru.terrakok.cicerone.android.SupportAppNavigator
 import ru.terrakok.cicerone.commands.Command
+import ru.terrakok.cicerone.commands.Forward
+import ru.terrakok.cicerone.commands.Replace
 import toothpick.Toothpick
 import javax.inject.Inject
 
@@ -87,6 +93,7 @@ class LaunchActivity : BaseActivity(), LaunchView {
                 .replace(R.id.mainContainer, LastEntriesFragment())
                 .replace(R.id.navDrawerContainer, NavigationDrawerFragment())
                 .commitNow()
+        updateNavDrawer()
     }
 
     private val navigator = object : SupportAppNavigator(this, R.id.mainContainer) {
@@ -103,10 +110,24 @@ class LaunchActivity : BaseActivity(), LaunchView {
 
         override fun createFragment(screenKey: String?, data: Any?): Fragment? = when (screenKey) {
             Screens.LAST_ENTRIES_SCREEN -> LastEntriesFragment()
+            Screens.PODCAST_SCREEN -> PodcastFragment.createNewInstance((data as EntrySharedElement).entry)
 //            Screens.ALL_PODCASTS_SCREEN -> AllPodcastsFragment()
-//            Screens.PODCAST_SCREEN -> PodcastFragment.createNewInstance(data as Entry)
 //            Screens.SEARCH_SCREEN -> SearchFragment.createNewInstance()
             else -> null
+        }
+
+        override fun setupFragmentTransactionAnimation(command: Command?, currentFragment: Fragment?,
+                                                       nextFragment: Fragment?, fragmentTransaction: FragmentTransaction?) {
+            super.setupFragmentTransactionAnimation(command, currentFragment, nextFragment, fragmentTransaction)
+
+            if (currentFragment is LastEntriesFragment && nextFragment is PodcastFragment) {
+                val entrySharedElement: EntrySharedElement = (command as? Replace)?.transitionData as? EntrySharedElement ?:
+                        (command as Forward).transitionData as EntrySharedElement
+
+                fragmentTransaction?.addSharedElement(entrySharedElement.sharedImageView, ViewCompat.getTransitionName(entrySharedElement.sharedImageView))
+                fragmentTransaction?.addSharedElement(entrySharedElement.titleSharedTextView, ViewCompat.getTransitionName(entrySharedElement.titleSharedTextView))
+                fragmentTransaction?.addSharedElement(entrySharedElement.dateSharedTextView, ViewCompat.getTransitionName(entrySharedElement.dateSharedTextView))
+            }
         }
     }
 

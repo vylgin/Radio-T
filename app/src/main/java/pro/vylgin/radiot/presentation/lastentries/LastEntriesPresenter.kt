@@ -8,6 +8,7 @@ import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.presentation.global.ErrorHandler
 import pro.vylgin.radiot.presentation.global.GlobalMenuController
 import pro.vylgin.radiot.presentation.global.Paginator
+import pro.vylgin.radiot.ui.global.list.EntrySharedElement
 import ru.terrakok.cicerone.Router
 import javax.inject.Inject
 
@@ -66,8 +67,8 @@ class LastEntriesPresenter @Inject constructor(
     fun loadNextEventsPage() = paginator.loadNewPage()
     fun onBackPressed() = router.exit()
 
-    fun onPodcastClicked(podcast: Entry) {
-        TODO("not implemented")
+    fun onPodcastClicked(entrySharedElement: EntrySharedElement) {
+        router.navigateTo(Screens.PODCAST_SCREEN, entrySharedElement)
     }
 
     fun onPrepClicked(prep: Entry) {

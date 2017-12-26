@@ -1,12 +1,16 @@
 package pro.vylgin.radiot.ui.global
 
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import com.arellomobile.mvp.MvpAppCompatFragment
+import pro.vylgin.radiot.R
+import pro.vylgin.radiot.extension.color
+import pro.vylgin.radiot.ui.podcast.PodcastFragment
 
 
 abstract class BaseFragment : MvpAppCompatFragment() {
@@ -15,6 +19,16 @@ abstract class BaseFragment : MvpAppCompatFragment() {
     }
 
     abstract val layoutRes: Int
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (this is PodcastFragment) {
+                activity?.window?.statusBarColor = resources.color(R.color.transparent)
+            }
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?)
             = inflater.inflate(layoutRes, container, false)
@@ -27,6 +41,16 @@ abstract class BaseFragment : MvpAppCompatFragment() {
         } else if (fragment == null && progress) {
             ProgressDialog().show(childFragmentManager, PROGRESS_TAG)
             childFragmentManager.executePendingTransactions()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (this is PodcastFragment) {
+                activity?.window?.statusBarColor = resources.color(R.color.colorPrimaryDark)
+            }
         }
     }
 

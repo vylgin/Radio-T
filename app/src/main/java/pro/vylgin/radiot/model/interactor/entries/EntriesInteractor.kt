@@ -7,4 +7,6 @@ class EntriesInteractor @Inject constructor(
         private val entryRepository: EntryRepository
 ) {
     fun getEntries() = entryRepository.getEntries()
+
+    fun getPodcast(podcastNumber: Int) = entryRepository.getEntry(podcastNumber)
 }

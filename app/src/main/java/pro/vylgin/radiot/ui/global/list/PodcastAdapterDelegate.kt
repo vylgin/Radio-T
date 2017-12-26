@@ -1,19 +1,20 @@
 package pro.vylgin.radiot.ui.global.list
 
+import android.support.v4.view.ViewCompat
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
 import com.hannesdorfmann.adapterdelegates3.AdapterDelegate
 import kotlinx.android.synthetic.main.item_podcast.view.*
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.entity.Entry
+import pro.vylgin.radiot.extension.getTransitionNames
 import pro.vylgin.radiot.extension.humanTime
 import pro.vylgin.radiot.extension.inflate
+import pro.vylgin.radiot.extension.loadImage
 
 
-class PodcastAdapterDelegate(private val clickListener: (Entry) -> Unit) : AdapterDelegate<MutableList<ListItem>>() {
+class PodcastAdapterDelegate(private val clickListener: (EntrySharedElement) -> Unit) : AdapterDelegate<MutableList<ListItem>>() {
 
     override fun isForViewType(items: MutableList<ListItem>, position: Int) =
             items[position] is ListItem.PodcastItem
@@ -27,27 +28,29 @@ class PodcastAdapterDelegate(private val clickListener: (Entry) -> Unit) : Adapt
                                   payloads: MutableList<Any>) =
             (viewHolder as PodcastViewHolder).bind((items[position] as ListItem.PodcastItem).entry)
 
-    private class PodcastViewHolder(val view: View, clickListener: (Entry) -> Unit) : RecyclerView.ViewHolder(view) {
+    private class PodcastViewHolder(val view: View, clickListener: (EntrySharedElement) -> Unit) : RecyclerView.ViewHolder(view) {
         private lateinit var podcast: Entry
 
         init {
-            view.setOnClickListener { clickListener.invoke(podcast) }
+            view.setOnClickListener {
+                val entrySharedElement = EntrySharedElement(podcast, view.imageView, view.titleTV, view.dateTV)
+                clickListener.invoke(entrySharedElement)
+            }
         }
 
         fun bind(podcast: Entry) {
             this.podcast = podcast
 
+            val (imageViewTransitionName, titleTransitionName, dateTransitionName) = podcast.getTransitionNames()
+            ViewCompat.setTransitionName(view.imageView, imageViewTransitionName)
+            ViewCompat.setTransitionName(view.titleTV, titleTransitionName)
+            ViewCompat.setTransitionName(view.dateTV, dateTransitionName)
+
             view.titleTV.text = podcast.title
-            view.urlTV.text = podcast.showNotes
+            view.showNotesTV.text = podcast.showNotes
             view.dateTV.text = podcast.date.humanTime(view.resources)
 
-            val image: String = podcast.image ?: ""
-            if (image.isNotEmpty()) {
-                Glide.with(view.context)
-                        .load(image)
-                        .apply(RequestOptions().centerCrop())
-                        .into(view.imageView)
-            }
+            view.imageView.loadImage(podcast.image)
         }
     }
 }
