@@ -113,6 +113,7 @@ class LaunchActivity : BaseActivity(), LaunchView {
             Screens.LAST_ENTRIES_SCREEN -> LastEntriesFragment()
             Screens.PODCAST_SCREEN -> PodcastFragment.createNewInstance((data as EntrySharedElement).entry)
             Screens.NEWS_SCREEN -> NewsFragment.createNewInstance((data as EntrySharedElement).entry)
+            Screens.INFO_SCREEN -> NewsFragment.createNewInstance((data as EntrySharedElement).entry)
 //            Screens.ALL_PODCASTS_SCREEN -> AllPodcastsFragment()
 //            Screens.SEARCH_SCREEN -> SearchFragment.createNewInstance()
             else -> null

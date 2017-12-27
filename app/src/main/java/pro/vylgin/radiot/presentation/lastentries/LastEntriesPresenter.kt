@@ -79,8 +79,8 @@ class LastEntriesPresenter @Inject constructor(
         router.navigateTo(Screens.NEWS_SCREEN, entrySharedElement)
     }
 
-    fun onInfoClicked(info: Entry) {
-        viewState.showMessage("Открыть экран информации")
+    fun onInfoClicked(entrySharedElement: EntrySharedElement) {
+        router.navigateTo(Screens.INFO_SCREEN, entrySharedElement)
     }
 
 }

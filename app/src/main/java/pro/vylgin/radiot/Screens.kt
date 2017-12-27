@@ -6,5 +6,6 @@ object Screens {
     const val PODCAST_SCREEN = "podcast screen"
     const val PREP_SCREEN = "prep screen"
     const val NEWS_SCREEN = "news screen"
+    const val INFO_SCREEN = "info screen"
     const val SEARCH_SCREEN = "search screen"
 }
