@@ -1,22 +1,19 @@
-package pro.vylgin.radiot.presentation.podcast
+package pro.vylgin.radiot.presentation.news
 
 import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
-import pro.vylgin.radiot.entity.TimeLabel
 
 
 @StateStrategyType(AddToEndSingleStrategy::class)
-interface PodcastView : MvpView {
+interface NewsView : MvpView {
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showMessage(message: String)
 
     fun showProgress(show: Boolean)
     fun showToolbarTitle(title: String)
-    fun showToolbarImage(imageUrl: String?, transitionName: String = "")
-    fun showPodcastInfo(title: String, date: String, titleTransitionName: String = "", dateTransitionName: String = "")
-    fun showPodcastShowNotes(showNotes: String)
-    fun showTimeLabels(timeLabels: List<TimeLabel>)
+    fun showNewsInfo(title: String, date: String, titleTransitionName: String = "", dateTransitionName: String = "")
+    fun showNewsShowNotes(showNotes: String)
 }

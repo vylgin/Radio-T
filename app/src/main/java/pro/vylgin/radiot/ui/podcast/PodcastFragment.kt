@@ -17,7 +17,6 @@ import pro.vylgin.radiot.R
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.entity.TimeLabel
 import pro.vylgin.radiot.extension.humanDuration
-import pro.vylgin.radiot.extension.humanTime
 import pro.vylgin.radiot.extension.loadImage
 import pro.vylgin.radiot.presentation.podcast.PodcastPresenter
 import pro.vylgin.radiot.presentation.podcast.PodcastView
@@ -113,7 +112,7 @@ class PodcastFragment : BaseFragment(), PodcastView {
         posterIV.loadImage(imageUrl, activity)
     }
 
-    override fun showPodcastInfo(podcast: Entry, titleTransitionName: String, dateTransitionName: String) {
+    override fun showPodcastInfo(title: String, date: String, titleTransitionName: String, dateTransitionName: String) {
         if (titleTransitionName.isNotEmpty() &&
                 dateTransitionName.isNotEmpty() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -121,8 +120,8 @@ class PodcastFragment : BaseFragment(), PodcastView {
             dateTV.transitionName = dateTransitionName
         }
 
-        titleTV.text = podcast.title
-        dateTV.text = podcast.date.humanTime(resources)
+        titleTV.text = title
+        dateTV.text = date
     }
 
     override fun showPodcastShowNotes(showNotes: String) {

@@ -6,6 +6,7 @@ import io.reactivex.disposables.CompositeDisposable
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.extension.addTo
 import pro.vylgin.radiot.extension.getTransitionNames
+import pro.vylgin.radiot.extension.humanTime
 import pro.vylgin.radiot.extension.isEmpty
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.presentation.global.ErrorHandler
@@ -48,7 +49,7 @@ class PodcastPresenter @Inject constructor(
                 showToolbarTitle(title)
                 val (imageViewTransitionName, titleTransitionName, dateTransitionName) = getTransitionNames()
                 showToolbarImage(image, imageViewTransitionName)
-                showPodcastInfo(podcast, titleTransitionName, dateTransitionName)
+                showPodcastInfo(podcast.title, podcast.date.humanTime(), titleTransitionName, dateTransitionName)
 
                 if (this@PodcastPresenter.podcast.isEmpty()) {
                     showTimeLabelsOrShowNotes(podcast)

@@ -48,8 +48,7 @@ class PodcastAdapterDelegate(private val clickListener: (EntrySharedElement) -> 
 
             view.titleTV.text = podcast.title
             view.showNotesTV.text = podcast.showNotes
-            view.dateTV.text = podcast.date.humanTime(view.resources)
-
+            view.dateTV.text = podcast.date.humanTime()
             view.imageView.loadImage(podcast.image)
         }
     }

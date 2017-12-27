@@ -68,7 +68,7 @@ fun Throwable.userMessage(resourceManager: ResourceManager) = when (this) {
 }
 
 private val DATE_FORMAT = DateTimeFormat.forPattern("dd.MM.yyyy")
-fun Date.humanTime(resources: Resources): String {
+fun Date.humanTime(): String {
     val localMillis = DateTimeZone.getDefault().convertUTCToLocal(this.time)
     return DATE_FORMAT.print(localMillis)
 }

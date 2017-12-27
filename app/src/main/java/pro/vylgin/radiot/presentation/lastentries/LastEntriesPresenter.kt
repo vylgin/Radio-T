@@ -75,12 +75,12 @@ class LastEntriesPresenter @Inject constructor(
         router.newScreenChain(Screens.PREP_SCREEN, prep)
     }
 
-    fun onNewsClicked(news: Entry) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    fun onNewsClicked(entrySharedElement: EntrySharedElement) {
+        router.navigateTo(Screens.NEWS_SCREEN, entrySharedElement)
     }
 
     fun onInfoClicked(info: Entry) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        viewState.showMessage("Открыть экран информации")
     }
 
 }

@@ -26,6 +26,7 @@ import pro.vylgin.radiot.ui.global.BaseActivity
 import pro.vylgin.radiot.ui.global.BaseFragment
 import pro.vylgin.radiot.ui.global.list.EntrySharedElement
 import pro.vylgin.radiot.ui.lastentries.LastEntriesFragment
+import pro.vylgin.radiot.ui.news.NewsFragment
 import pro.vylgin.radiot.ui.podcast.PodcastFragment
 import ru.terrakok.cicerone.NavigatorHolder
 import ru.terrakok.cicerone.android.SupportAppNavigator
@@ -103,7 +104,7 @@ class LaunchActivity : BaseActivity(), LaunchView {
             updateNavDrawer()
         }
 
-        override fun createActivityIntent(screenKey: String?, data: Any?): Intent?  = when (screenKey) {
+        override fun createActivityIntent(screenKey: String?, data: Any?): Intent? = when (screenKey) {
             Screens.PREP_SCREEN -> Intent(Intent.ACTION_VIEW, Uri.parse((data as Entry).url))
             else -> null
         }
@@ -111,6 +112,7 @@ class LaunchActivity : BaseActivity(), LaunchView {
         override fun createFragment(screenKey: String?, data: Any?): Fragment? = when (screenKey) {
             Screens.LAST_ENTRIES_SCREEN -> LastEntriesFragment()
             Screens.PODCAST_SCREEN -> PodcastFragment.createNewInstance((data as EntrySharedElement).entry)
+            Screens.NEWS_SCREEN -> NewsFragment.createNewInstance((data as EntrySharedElement).entry)
 //            Screens.ALL_PODCASTS_SCREEN -> AllPodcastsFragment()
 //            Screens.SEARCH_SCREEN -> SearchFragment.createNewInstance()
             else -> null
@@ -120,13 +122,21 @@ class LaunchActivity : BaseActivity(), LaunchView {
                                                        nextFragment: Fragment?, fragmentTransaction: FragmentTransaction?) {
             super.setupFragmentTransactionAnimation(command, currentFragment, nextFragment, fragmentTransaction)
 
-            if (currentFragment is LastEntriesFragment && nextFragment is PodcastFragment) {
-                val entrySharedElement: EntrySharedElement = (command as? Replace)?.transitionData as? EntrySharedElement ?:
-                        (command as Forward).transitionData as EntrySharedElement
+            if (currentFragment is LastEntriesFragment) {
+                if (nextFragment is PodcastFragment) {
+                    val entrySharedElement: EntrySharedElement = (command as? Replace)?.transitionData as? EntrySharedElement ?:
+                            (command as Forward).transitionData as EntrySharedElement
 
-                fragmentTransaction?.addSharedElement(entrySharedElement.sharedImageView, ViewCompat.getTransitionName(entrySharedElement.sharedImageView))
-                fragmentTransaction?.addSharedElement(entrySharedElement.titleSharedTextView, ViewCompat.getTransitionName(entrySharedElement.titleSharedTextView))
-                fragmentTransaction?.addSharedElement(entrySharedElement.dateSharedTextView, ViewCompat.getTransitionName(entrySharedElement.dateSharedTextView))
+                    fragmentTransaction?.addSharedElement(entrySharedElement.sharedImageView, ViewCompat.getTransitionName(entrySharedElement.sharedImageView))
+                    fragmentTransaction?.addSharedElement(entrySharedElement.titleSharedTextView, ViewCompat.getTransitionName(entrySharedElement.titleSharedTextView))
+                    fragmentTransaction?.addSharedElement(entrySharedElement.dateSharedTextView, ViewCompat.getTransitionName(entrySharedElement.dateSharedTextView))
+                } else if (nextFragment is NewsFragment) {
+                    val entrySharedElement: EntrySharedElement = (command as? Replace)?.transitionData as? EntrySharedElement ?:
+                            (command as Forward).transitionData as EntrySharedElement
+
+                    fragmentTransaction?.addSharedElement(entrySharedElement.titleSharedTextView, ViewCompat.getTransitionName(entrySharedElement.titleSharedTextView))
+                    fragmentTransaction?.addSharedElement(entrySharedElement.dateSharedTextView, ViewCompat.getTransitionName(entrySharedElement.dateSharedTextView))
+                }
             }
         }
     }
