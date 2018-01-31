@@ -1,14 +1,17 @@
 package pro.vylgin.radiot.presentation.podcast
 
+import android.os.Build
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import io.reactivex.disposables.CompositeDisposable
 import pro.vylgin.radiot.entity.Entry
+import pro.vylgin.radiot.entity.TimeLabel
 import pro.vylgin.radiot.extension.addTo
 import pro.vylgin.radiot.extension.getTransitionNames
 import pro.vylgin.radiot.extension.humanTime
 import pro.vylgin.radiot.extension.isEmpty
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
+import pro.vylgin.radiot.model.interactor.player.PlayerInteractor
 import pro.vylgin.radiot.presentation.global.ErrorHandler
 import pro.vylgin.radiot.toothpick.PrimitiveWrapper
 import pro.vylgin.radiot.toothpick.qualifier.PodcastNumber
@@ -21,6 +24,7 @@ class PodcastPresenter @Inject constructor(
         @PodcastNumber private val podcastNumberWrapper: PrimitiveWrapper<Int>?,
         private val router: Router,
         private val entriesInteractor: EntriesInteractor,
+        private val playerInteractor: PlayerInteractor,
         private val errorHandler: ErrorHandler
 ) : MvpPresenter<PodcastView>() {
 
@@ -51,6 +55,10 @@ class PodcastPresenter @Inject constructor(
                 showToolbarImage(image, imageViewTransitionName)
                 showPodcastInfo(podcast.title, podcast.date.humanTime(), titleTransitionName, dateTransitionName)
 
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    transitionAnimationEnd()
+                }
+
                 if (this@PodcastPresenter.podcast.isEmpty()) {
                     showTimeLabelsOrShowNotes(podcast)
                 }
@@ -77,6 +85,14 @@ class PodcastPresenter @Inject constructor(
 
     override fun onDestroy() {
         compositeDisposable.dispose()
+    }
+
+    fun playPodcast() {
+        playerInteractor.playPodcast(podcast)
+    }
+
+    fun seekTo(timeLabel: TimeLabel) {
+        playerInteractor.seekTo(podcast, timeLabel)
     }
 
 }

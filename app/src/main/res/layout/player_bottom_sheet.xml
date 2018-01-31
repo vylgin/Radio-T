@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottomSheetCL"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:clickable="true"
+    android:elevation="4dp"
+    android:focusable="true"
+    android:orientation="vertical"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="@dimen/player_bottom_sheet_height"
+    app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+    <ImageView
+        android:id="@+id/littleImageIV"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@color/colorPrimary" />
+
+    <LinearLayout
+        android:id="@+id/titleLL"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:orientation="vertical"
+        android:gravity="center|left"
+        app:layout_constraintBottom_toBottomOf="@+id/littleImageIV"
+        app:layout_constraintEnd_toStartOf="@+id/playIB"
+        app:layout_constraintStart_toEndOf="@+id/littleImageIV"
+        app:layout_constraintTop_toTopOf="@+id/littleImageIV">
+
+        <TextView
+            android:id="@+id/titleTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            tools:text="Выпуск 756" />
+
+        <TextView
+            android:id="@+id/timeLabelTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:visibility="visible"
+            tools:text="API для сайта Radio-T" />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/playIB"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/list_item_background"
+        android:tint="@color/black_alpha_50"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/exo_controls_play" />
+
+    <ImageButton
+        android:id="@+id/pauseIB"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/list_item_background"
+        android:tint="@color/black_alpha_50"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/exo_controls_pause" />
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/playIB">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/timeLabelsLL"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical" />
+
+            <TextView
+                android:id="@+id/showNotesTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:visibility="visible"
+                tools:text="Лучшие технические новинки 2017 - 00:04:53.\nJony Ive возвращается - 01:18:41.\nВторая жизнь iOS jailbreaking - 01:21:14.\nTeamCity 2017.2 - 01:26:48." />
+
+        </FrameLayout>
+
+
+    </android.support.v4.widget.NestedScrollView>
+
+    <View
+        android:id="@+id/bottomView"
+        android:layout_width="0dp"
+        android:layout_height="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/seekOverThumbTV" />
+
+    <android.support.v7.widget.AppCompatSeekBar
+        android:id="@+id/seekBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:max="100"
+        android:progress="0"
+        android:secondaryProgress="0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/bottomView" />
+
+    <TextView
+        android:id="@+id/currentPositionTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        tools:text="1:23:32" />
+
+    <TextView
+        android:id="@+id/durationPodcastTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="-1:-03:-12"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        tools:text="2:27:12" />
+
+    <TextView
+        android:id="@+id/seekOverThumbTV"
+        style="@style/PlayerQuality"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/seekBar"
+        tools:text="23:45" />
+
+    <ImageButton
+        android:id="@+id/playBottomIB"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:tint="@color/black_alpha_50"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/bottomView"
+        app:layout_constraintEnd_toEndOf="@+id/bottomView"
+        app:layout_constraintStart_toStartOf="@+id/bottomView"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        app:srcCompat="@drawable/exo_controls_play" />
+
+    <ImageButton
+        android:id="@+id/pauseBottomIB"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:tint="@color/black_alpha_50"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/bottomView"
+        app:layout_constraintEnd_toEndOf="@+id/bottomView"
+        app:layout_constraintStart_toStartOf="@+id/bottomView"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        app:srcCompat="@drawable/exo_controls_pause" />
+
+    <ImageButton
+        android:id="@+id/prevIB"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginEnd="8dp"
+        android:tint="@color/black_alpha_50"
+        app:layout_constraintBottom_toBottomOf="@+id/pauseBottomIB"
+        app:layout_constraintEnd_toStartOf="@+id/pauseBottomIB"
+        app:layout_constraintTop_toTopOf="@+id/pauseBottomIB"
+        app:srcCompat="@drawable/exo_controls_previous" />
+
+    <ImageButton
+        android:id="@+id/nextIB"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="8dp"
+        android:tint="@color/black_alpha_50"
+        app:layout_constraintBottom_toBottomOf="@+id/pauseBottomIB"
+        app:layout_constraintStart_toEndOf="@+id/pauseBottomIB"
+        app:layout_constraintTop_toTopOf="@+id/pauseBottomIB"
+        app:srcCompat="@drawable/exo_controls_next" />
+
+
+</android.support.constraint.ConstraintLayout>

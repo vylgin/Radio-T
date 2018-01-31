@@ -25,7 +25,7 @@ class ServerModule(serverUrl: String) : Module() {
         bind(ErrorHandler::class.java).singletonInScope()
 
         //Entry
-        bind(EntryRepository::class.java)
-        bind(EntriesInteractor::class.java)
+        bind(EntryRepository::class.java).singletonInScope()
+        bind(EntriesInteractor::class.java).singletonInScope()
     }
 }

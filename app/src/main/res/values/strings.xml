@@ -33,4 +33,11 @@
     <string name="time_day" formatted="false">%d d</string>
     <string name="time_ago" formatted="false">%s ago</string>
 
+    <!--Player-->
+    <string name="pause">pause</string>
+    <string name="play">play</string>
+    <string name="notification_channel_name">Player controls</string>
+    <string name="previous">previous</string>
+    <string name="next">next</string>
+
 </resources>

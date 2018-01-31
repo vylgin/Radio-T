@@ -3,10 +3,10 @@ package pro.vylgin.radiot.ui.podcast
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.transition.Transition
-import android.transition.TransitionInflater
-import android.transition.TransitionListenerAdapter
-import android.transition.TransitionManager
+import android.support.transition.Transition
+import android.support.transition.TransitionInflater
+import android.support.transition.TransitionListenerAdapter
+import android.support.transition.TransitionManager
 import android.view.LayoutInflater
 import android.view.View
 import com.arellomobile.mvp.presenter.InjectPresenter
@@ -93,6 +93,7 @@ class PodcastFragment : BaseFragment(), PodcastView {
         super.onActivityCreated(savedInstanceState)
 
         toolbar.setNavigationOnClickListener { presenter.onMenuClick() }
+        playButton.setOnClickListener { presenter.playPodcast() }
     }
 
     override fun showMessage(message: String) {
@@ -149,7 +150,7 @@ class PodcastFragment : BaseFragment(), PodcastView {
             view.durationTV.text = timeLabel.humanDuration()
 
             view.topicConstraintLayout.setOnClickListener {
-                showMessage("Воспроизвести \"${timeLabel.topic}\"")
+                presenter.seekTo(timeLabel)
             }
 
             timeLabelsLL.addView(view)

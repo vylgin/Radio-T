@@ -9,4 +9,6 @@ class EntriesInteractor @Inject constructor(
     fun getEntries() = entryRepository.getEntries()
 
     fun getPodcast(podcastNumber: Int) = entryRepository.getEntry(podcastNumber)
+
+
 }

@@ -59,7 +59,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/selector_primary_color"
-                android:drawableStart="@drawable/ic_queue_music_grey_800_24dp"
                 android:drawablePadding="16dp"
                 android:gravity="center_vertical"
                 android:padding="16dp"
@@ -67,13 +66,13 @@
                 android:textColor="@color/primaryText"
                 android:textSize="14sp"
                 fontPath="@string/font_main_medium" />
+            <!--android:drawableStart="@drawable/ic_queue_music_grey_800_24dp"-->
 
             <TextView
                 android:id="@+id/allPodcastsMI"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/selector_primary_color"
-                android:drawableStart="@drawable/ic_library_music_grey_800_24dp"
                 android:drawablePadding="16dp"
                 android:gravity="center_vertical"
                 android:padding="16dp"
@@ -81,6 +80,7 @@
                 android:textColor="@color/primaryText"
                 android:textSize="14sp"
                 fontPath="@string/font_main_medium" />
+            <!--android:drawableStart="@drawable/ic_library_music_grey_800_24dp"-->
 
             <View
                 android:layout_width="match_parent"
@@ -94,7 +94,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/selector_primary_color"
-                android:drawableStart="@drawable/ic_search_grey_800_24dp"
                 android:drawablePadding="16dp"
                 android:gravity="center_vertical"
                 android:padding="16dp"
@@ -102,6 +101,7 @@
                 android:textColor="@color/primaryText"
                 android:textSize="14sp"
                 fontPath="@string/font_main_medium" />
+            <!--android:drawableStart="@drawable/ic_search_grey_800_24dp"-->
 
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>

@@ -3,6 +3,9 @@ package pro.vylgin.radiot.ui.launch
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.support.design.widget.BottomSheetBehavior
+import android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED
+import android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.view.GravityCompat
@@ -12,6 +15,7 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_launch.*
+import kotlinx.android.synthetic.main.player_bottom_sheet.*
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.entity.Entry
@@ -27,6 +31,7 @@ import pro.vylgin.radiot.ui.global.BaseFragment
 import pro.vylgin.radiot.ui.global.list.EntrySharedElement
 import pro.vylgin.radiot.ui.lastentries.LastEntriesFragment
 import pro.vylgin.radiot.ui.news.NewsFragment
+import pro.vylgin.radiot.ui.player.PlayerFragment
 import pro.vylgin.radiot.ui.podcast.PodcastFragment
 import ru.terrakok.cicerone.NavigatorHolder
 import ru.terrakok.cicerone.android.SupportAppNavigator
@@ -93,6 +98,7 @@ class LaunchActivity : BaseActivity(), LaunchView {
                 .beginTransaction()
                 .replace(R.id.mainContainer, LastEntriesFragment())
                 .replace(R.id.navDrawerContainer, NavigationDrawerFragment())
+                .replace(R.id.playerContainer, PlayerFragment())
                 .commitNow()
         updateNavDrawer()
     }
@@ -182,10 +188,11 @@ class LaunchActivity : BaseActivity(), LaunchView {
     //endregion
 
     override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            openNavDrawer(false)
-        } else {
-            currentFragment?.onBackPressed() ?: presenter.onBackPressed()
+        val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetCL)
+        when {
+            drawerLayout.isDrawerOpen(GravityCompat.START) -> openNavDrawer(false)
+            bottomSheetBehavior.state == STATE_EXPANDED -> bottomSheetBehavior.state = STATE_COLLAPSED
+            else -> currentFragment?.onBackPressed() ?: presenter.onBackPressed()
         }
     }
 }

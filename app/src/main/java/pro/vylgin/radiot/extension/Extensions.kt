@@ -38,6 +38,13 @@ fun Resources.color(colorRes: Int) =
             this.getColor(colorRes)
         }
 
+fun Resources.drawable(drawableRes: Int) =
+        if (Build.VERSION.SDK_INT >= 23) {
+            this.getDrawable(drawableRes, null)
+        } else {
+            this.getDrawable(drawableRes)
+        }
+
 fun Disposable.addTo(compositeDisposable: CompositeDisposable) {
     compositeDisposable.add(this)
 }
@@ -81,8 +88,9 @@ fun ImageView.loadImage(
             .load(url)
             .apply(RequestOptions()
                     .centerCrop()
-                    .placeholder(R.drawable.ic_launcher_foreground)
-                    .error(R.drawable.ic_launcher_foreground))
+//                    .placeholder(R.drawable.ic_search_grey_800_24dp)
+//                    .error(R.drawable.ic_search_grey_800_24dp)
+ )
             .transition(withCrossFade())
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
@@ -108,9 +116,25 @@ fun TimeLabel.humanDuration(): String {
         return ""
     }
 
-    val minutes = duration / 60
-    val seconds = duration % 60
-    return "%d:%02d".format(minutes, seconds)
+    val calendar: Calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"))
+    calendar.time = time
+
+    val hour = calendar.get(Calendar.HOUR)
+    val minute = calendar.get(Calendar.MINUTE)
+    val second = calendar.get(Calendar.SECOND)
+
+    return "%02d:%02d:%02d".format(hour, minute, second)
+}
+
+fun TimeLabel.positionInMillis() : Long {
+    val calendar: Calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"))
+    calendar.time = time
+
+    val hour = calendar.get(Calendar.HOUR)
+    val minute = calendar.get(Calendar.MINUTE)
+    val second = calendar.get(Calendar.SECOND)
+
+    return ((hour * 3600 + minute * 60 + second) * 1000).toLong()
 }
 
 fun Entry.getTransitionNames(): List<String> {
