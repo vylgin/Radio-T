@@ -1,5 +1,7 @@
 package pro.vylgin.radiot.model.interactor.entries
 
+import io.reactivex.Single
+import pro.vylgin.radiot.entity.Category
 import pro.vylgin.radiot.model.repository.entry.EntryRepository
 import javax.inject.Inject
 
@@ -8,7 +10,11 @@ class EntriesInteractor @Inject constructor(
 ) {
     fun getEntries() = entryRepository.getEntries()
 
-    fun getPodcast(podcastNumber: Int) = entryRepository.getEntry(podcastNumber)
+    fun getEpisode(episodeNumber: Int) = entryRepository.getEntry(episodeNumber)
+
+    fun getLastEpisodeNumber() = entryRepository
+            .getEntries(1, listOf(Category.PODCAST))
+            .flatMap { Single.just(it[0].title.substringAfter(' ').toInt()) }
 
 
 }

@@ -107,7 +107,7 @@ class LastEntriesFragment : BaseFragment(), LastEntriesView {
     inner class EntriesAdapter : ListDelegationAdapter<MutableList<ListItem>>() {
         init {
             items = mutableListOf()
-            delegatesManager.addDelegate(PodcastAdapterDelegate({ presenter.onPodcastClicked(it) }))
+            delegatesManager.addDelegate(EpisodeAdapterDelegate({ presenter.onEpisodeClicked(it) }))
             delegatesManager.addDelegate(PrepAdapterDelegate({ presenter.onPrepClicked(it) }))
             delegatesManager.addDelegate(NewsAdapterDelegate({ presenter.onNewsClicked(it) }))
             delegatesManager.addDelegate(InfoAdapterDelegate({ presenter.onInfoClicked(it) }))
@@ -120,11 +120,11 @@ class LastEntriesFragment : BaseFragment(), LastEntriesView {
             items.clear()
             items.addAll(entries.map {
                 when (it.categories[0]) {
-                    Category.PODCAST -> ListItem.PodcastItem(it)
+                    Category.PODCAST -> ListItem.EpisodeItem(it)
                     Category.PREP -> ListItem.PrepItem(it)
                     Category.NEWS -> ListItem.NewsItem(it)
                     Category.INFO -> ListItem.InfoItem(it)
-                    Category.SPECIAL -> ListItem.PodcastItem(it)
+                    Category.SPECIAL -> ListItem.EpisodeItem(it)
                 }
             })
             if (progress) items.add(ListItem.ProgressItem())

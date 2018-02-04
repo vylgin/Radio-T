@@ -34,7 +34,7 @@ class NavigationDrawerPresenter @Inject constructor(
         if (item != currentSelectedItem) {
             when (item) {
                 LAST_ENTRIES -> router.newRootScreen(Screens.LAST_ENTRIES_SCREEN)
-                ALL_PODCASTS -> router.newRootScreen(Screens.ALL_PODCASTS_SCREEN)
+                ALL_EPISODES -> router.newRootScreen(Screens.ALL_EPISODES_SCREEN)
                 SEARCH -> router.newRootScreen(Screens.SEARCH_SCREEN)
             }
         }

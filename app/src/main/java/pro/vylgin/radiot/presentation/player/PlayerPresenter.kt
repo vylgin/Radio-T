@@ -12,15 +12,15 @@ class PlayerPresenter @Inject constructor(
         private val playerInteractor: PlayerInteractor
 ) : MvpPresenter<PlayerView>() {
 
-    private var podcast: Entry? = null
+    private var episode: Entry? = null
     private var currentTimeLabel: TimeLabel? = null
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
-        podcast = playerInteractor.getCurrentPodcast()
+        episode = playerInteractor.getCurrentEpisode()
 
         checkNeedShowPlayerPanel()
-        updatePodcastInfo()
+        updateEpisodeInfo()
 
         playerInteractor.bindPlayerService()
     }
@@ -33,12 +33,12 @@ class PlayerPresenter @Inject constructor(
     fun onBackPressed() {}
 
     fun checkSeek() {
-        val currentPodcast = playerInteractor.getCurrentPodcast()
+        val currentEpisode = playerInteractor.getCurrentEpisode()
 
-        if (podcast != currentPodcast) {
-            podcast = currentPodcast
+        if (episode != currentEpisode) {
+            episode = currentEpisode
             checkNeedShowPlayerPanel()
-            updatePodcastInfo()
+            updateEpisodeInfo()
         }
 
         if (playerInteractor.statePlaying) {
@@ -57,12 +57,12 @@ class PlayerPresenter @Inject constructor(
         }
     }
 
-    private fun updatePodcastInfo() {
+    private fun updateEpisodeInfo() {
         viewState.apply {
-            updateTitle(podcast?.title ?: "")
-            updateSmallImage(podcast?.image)
+            updateTitle(episode?.title ?: "")
+            updateSmallImage(episode?.image)
             showTimeLabelsOrShowNotes()
-            if (podcast?.timeLabels == null) {
+            if (episode?.timeLabels == null) {
                 hidePrevAndNextButtons()
                 hideTimeLabelTitle()
             } else {
@@ -73,7 +73,7 @@ class PlayerPresenter @Inject constructor(
     }
 
     private fun checkNeedShowPlayerPanel() {
-        if (podcast == null) {
+        if (episode == null) {
             viewState.hidePlayerPanel()
         } else {
             viewState.showPlayerPanel()
@@ -81,13 +81,13 @@ class PlayerPresenter @Inject constructor(
     }
 
     private fun showTimeLabelsOrShowNotes() {
-        val timeLabels = podcast?.timeLabels
+        val timeLabels = episode?.timeLabels
         if (timeLabels != null) {
             viewState.showTimeLabels(timeLabels)
         } else {
-            val showNotes = podcast?.showNotes
+            val showNotes = episode?.showNotes
             if (showNotes != null) {
-                viewState.showPodcastShowNotes(showNotes)
+                viewState.showEpisodeShowNotes(showNotes)
             }
         }
     }
@@ -111,17 +111,17 @@ class PlayerPresenter @Inject constructor(
     }
 
     fun seekTo(timeLabel: TimeLabel) {
-        val podcast = podcast ?: return
-        playerInteractor.seekTo(podcast, timeLabel)
+        val episode = episode ?: return
+        playerInteractor.seekTo(episode, timeLabel)
     }
 
-    fun playPodcast() {
-        playerInteractor.playCurrentPodcast()
+    fun playEpisode() {
+        playerInteractor.playCurrentEpisode()
         viewState.showPauseButton()
     }
 
-    fun pausePodcast() {
-        playerInteractor.pausePodcast()
+    fun pauseEpisode() {
+        playerInteractor.pauseEpisode()
         viewState.showPlayButton()
     }
 

@@ -5,7 +5,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '27.0.2'
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "pro.vylgin.radiot"
@@ -59,7 +59,7 @@ dependencies {
     kapt "com.arello-mobile:moxy-compiler:$moxyVersion"
     implementation "com.arello-mobile:moxy-app-compat:$moxyVersion"
     //Cicerone Navigation
-    implementation "ru.terrakok.cicerone:cicerone:2.1.0"
+    implementation "ru.terrakok.cicerone:cicerone:3.0.0"
     //DI
     implementation "com.github.stephanenicolas.toothpick:toothpick-runtime:$toothpickVersion"
     kapt "com.github.stephanenicolas.toothpick:toothpick-compiler:$toothpickVersion"
@@ -86,7 +86,7 @@ dependencies {
     implementation 'com.airbnb.android:lottie:2.1.0'
     //Date
     implementation 'joda-time:joda-time:2.9.9'
-    // exoplayer
+    //ExoPlayer
     compile 'com.google.android.exoplayer:exoplayer:r2.4.0'
     compile 'com.google.android.exoplayer:exoplayer:r2.4.0'
     compile 'com.google.android.exoplayer:extension-okhttp:r2.4.0'

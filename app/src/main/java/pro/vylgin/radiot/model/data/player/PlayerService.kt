@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -80,7 +81,8 @@ class PlayerService : Service() {
     private lateinit var extractorsFactory: ExtractorsFactory
     private lateinit var dataSourceFactory: DataSource.Factory
 
-    @Inject lateinit var playerRepository: PlayerRepository
+    @Inject
+    lateinit var playerRepository: PlayerRepository
 
     private val seekHandler = Handler()
     private val seekRunnable = object : Runnable {
@@ -96,13 +98,13 @@ class PlayerService : Service() {
         internal var currentState = PlaybackStateCompat.STATE_STOPPED
 
         override fun onPlay() {
-            val podcast: Entry = playerRepository.currentPodcast ?: return
+            val episode: Entry = playerRepository.currentEpisode ?: return
 
-            updateMetadataFromTrack(podcast) {
+            updateMetadataFromTrack(episode) {
                 if (!exoPlayer.playWhenReady) {
                     startService(Intent(applicationContext, PlayerService::class.java))
 
-                    prepareToPlay(podcast.audioUrl ?: "")
+                    prepareToPlay(episode.audioUrl ?: "")
 
                     if (!audioFocusRequested) {
                         audioFocusRequested = true
@@ -193,27 +195,34 @@ class PlayerService : Service() {
             }
         }
 
-        private fun updateMetadataFromTrack(podcast: Entry, callback: () -> Unit) {
-            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, podcast.title)
+        private fun updateMetadataFromTrack(episode: Entry, callback: () -> Unit) {
+            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, episode.title)
             metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, resources.getString(R.string.app_name))
 
-            Glide.with(this@PlayerService)
-                    .asBitmap()
-                    .load(podcast.image)
-                    .into(object : SimpleTarget<Bitmap>() {
-                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>) {
-                            metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, resource)
-                            mediaSession.setMetadata(metadataBuilder.build())
-                            callback.invoke()
-                        }
-                    })
+            if (episode.image == null) {
+                metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
+                        BitmapFactory.decodeResource(resources, R.drawable.exo_controls_play))
+                mediaSession.setMetadata(metadataBuilder.build())
+                callback.invoke()
+            } else {
+                Glide.with(this@PlayerService)
+                        .asBitmap()
+                        .load(episode.image)
+                        .into(object : SimpleTarget<Bitmap>() {
+                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>) {
+                                metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, resource)
+                                mediaSession.setMetadata(metadataBuilder.build())
+                                callback.invoke()
+                            }
+                        })
+            }
         }
     }
 
     private fun updateNotificationTimeLabel() {
-        val podcast = playerRepository.currentPodcast ?: return
+        val episode = playerRepository.currentEpisode ?: return
 
-        if (podcast.timeLabels != null) {
+        if (episode.timeLabels != null) {
             metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, getCurrentTimeLabel()?.topic)
             mediaSession.setMetadata(metadataBuilder.build())
         }
@@ -372,7 +381,7 @@ class PlayerService : Service() {
         }
 
         fun getCurrentTimeLabel(): TimeLabel? {
-          return this@PlayerService.getCurrentTimeLabel()
+            return this@PlayerService.getCurrentTimeLabel()
         }
 
         fun getCurrentTimeLabelPosition(): Int {
@@ -403,7 +412,7 @@ class PlayerService : Service() {
     }
 
     private fun getCurrentTimeLabel(): TimeLabel? {
-        val timeLabels = playerRepository.currentPodcast?.timeLabels ?: return null
+        val timeLabels = playerRepository.currentEpisode?.timeLabels ?: return null
         val currentPosition = getCurrentPositionSec()
 
         for (timeLabel in timeLabels) {
@@ -417,7 +426,7 @@ class PlayerService : Service() {
     }
 
     private fun getNextTimeLabel(): TimeLabel? {
-        val timeLabels = playerRepository.currentPodcast?.timeLabels ?: return null
+        val timeLabels = playerRepository.currentEpisode?.timeLabels ?: return null
         val currentTimeLabel = getCurrentTimeLabel() ?: return null
 
         val currentIndex = timeLabels.indexOf(currentTimeLabel)
@@ -429,7 +438,7 @@ class PlayerService : Service() {
     }
 
     private fun getPrevTimeLabel(): TimeLabel? {
-        val timeLabels = playerRepository.currentPodcast?.timeLabels ?: return null
+        val timeLabels = playerRepository.currentEpisode?.timeLabels ?: return null
         val currentTimeLabel = getCurrentTimeLabel() ?: return null
 
         val currentIndex = timeLabels.indexOf(currentTimeLabel)
@@ -441,8 +450,8 @@ class PlayerService : Service() {
     }
 
     private fun getCurrentTimeLabelPosition(): Int {
-        val currentPodcast = playerRepository.currentPodcast ?: return -1
-        val timeLabels = currentPodcast.timeLabels ?: return -1
+        val currentEpisode = playerRepository.currentEpisode ?: return -1
+        val timeLabels = currentEpisode.timeLabels ?: return -1
         val currentTimeLabel = getCurrentTimeLabel()
         return timeLabels.indexOf(currentTimeLabel)
     }
@@ -465,7 +474,7 @@ class PlayerService : Service() {
     private fun getNotification(playbackState: Int): Notification {
         val builder = MediaStyleHelper.from(applicationContext, mediaSession, NOTIFICATION_DEFAULT_CHANNEL_ID)
 
-        if (playerRepository.currentPodcast?.timeLabels == null) {
+        if (playerRepository.currentEpisode?.timeLabels == null) {
             builder.addAction(NotificationCompat.Action(R.color.transparent, getString(R.string.previous), MediaButtonReceiver.buildMediaButtonPendingIntent(applicationContext, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)))
         } else {
             builder.addAction(NotificationCompat.Action(R.drawable.exo_controls_previous, getString(R.string.previous), MediaButtonReceiver.buildMediaButtonPendingIntent(applicationContext, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)))
@@ -477,7 +486,7 @@ class PlayerService : Service() {
             builder.addAction(NotificationCompat.Action(R.drawable.exo_controls_play, getString(R.string.play), MediaButtonReceiver.buildMediaButtonPendingIntent(applicationContext, PlaybackStateCompat.ACTION_PLAY_PAUSE)))
         }
 
-        if (playerRepository.currentPodcast?.timeLabels == null) {
+        if (playerRepository.currentEpisode?.timeLabels == null) {
             builder.addAction(NotificationCompat.Action(R.color.transparent, getString(R.string.next), MediaButtonReceiver.buildMediaButtonPendingIntent(applicationContext, PlaybackStateCompat.ACTION_SKIP_TO_NEXT)))
         } else {
             builder.addAction(NotificationCompat.Action(R.drawable.exo_controls_next, getString(R.string.next), MediaButtonReceiver.buildMediaButtonPendingIntent(applicationContext, PlaybackStateCompat.ACTION_SKIP_TO_NEXT)))

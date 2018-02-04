@@ -69,14 +69,14 @@
             <!--android:drawableStart="@drawable/ic_queue_music_grey_800_24dp"-->
 
             <TextView
-                android:id="@+id/allPodcastsMI"
+                android:id="@+id/allEpisodesMI"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/selector_primary_color"
                 android:drawablePadding="16dp"
                 android:gravity="center_vertical"
                 android:padding="16dp"
-                android:text="@string/all_podcasts_item"
+                android:text="@string/all_episodes_item"
                 android:textColor="@color/primaryText"
                 android:textSize="14sp"
                 fontPath="@string/font_main_medium" />

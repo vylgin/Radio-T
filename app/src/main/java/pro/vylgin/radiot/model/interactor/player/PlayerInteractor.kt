@@ -56,27 +56,27 @@ class PlayerInteractor @Inject constructor(
         context.unbindService(playerServiceConnection)
     }
 
-    fun playPodcast(podcast: Entry) {
-        playerRepository.currentPodcast = podcast
+    fun playEpisode(episode: Entry) {
+        playerRepository.currentEpisode = episode
         mediaController.transportControls.stop()
         mediaController.transportControls.play()
     }
 
-    fun playCurrentPodcast() {
+    fun playCurrentEpisode() {
         mediaController.transportControls.play()
     }
 
-    fun pausePodcast() {
+    fun pauseEpisode() {
         mediaController.transportControls.pause()
     }
 
-    fun stopPodcast() {
+    fun stopEpisode() {
         mediaController.transportControls.stop()
     }
 
-    fun seekTo(podcast: Entry, timeLabel: TimeLabel) {
-        if (playerRepository.currentPodcast != podcast) {
-            playPodcast(podcast)
+    fun seekTo(episode: Entry, timeLabel: TimeLabel) {
+        if (playerRepository.currentEpisode != episode) {
+            playEpisode(episode)
         }
         Handler().postDelayed({playerServiceBinder.seekTo(timeLabel.positionInMillis())}, 150)
     }
@@ -105,8 +105,8 @@ class PlayerInteractor @Inject constructor(
         return playerServiceBinder.getDurationSec()
     }
 
-    fun getCurrentPodcast(): Entry? {
-        return playerRepository.currentPodcast
+    fun getCurrentEpisode(): Entry? {
+        return playerRepository.currentEpisode
     }
 
     fun getCurrentTimeLabel(): TimeLabel? {
