@@ -10,7 +10,7 @@ import android.widget.TextView
 import com.arellomobile.mvp.MvpAppCompatFragment
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.extension.color
-import pro.vylgin.radiot.ui.podcast.PodcastFragment
+import pro.vylgin.radiot.ui.episode.EpisodeFragment
 
 
 abstract class BaseFragment : MvpAppCompatFragment() {
@@ -24,7 +24,7 @@ abstract class BaseFragment : MvpAppCompatFragment() {
         super.onCreate(savedInstanceState)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (this is PodcastFragment) {
+            if (this is EpisodeFragment) {
                 activity?.window?.statusBarColor = resources.color(R.color.transparent)
             }
         }
@@ -48,7 +48,7 @@ abstract class BaseFragment : MvpAppCompatFragment() {
         super.onDestroy()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (this is PodcastFragment) {
+            if (this is EpisodeFragment) {
                 activity?.window?.statusBarColor = resources.color(R.color.colorPrimaryDark)
             }
         }

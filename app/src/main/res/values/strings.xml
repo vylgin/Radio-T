@@ -10,7 +10,7 @@
 
     <!--Navigation drawer-->
     <string name="last_entries_item">Последние выпуски</string>
-    <string name="all_podcasts_item">Все выпуски</string>
+    <string name="all_episodes_item">Все выпуски</string>
     <string name="search_item">Поиск</string>
 
     <!--Error messages-->

@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.ui.podcast
+package pro.vylgin.radiot.ui.episode
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -11,69 +11,69 @@ import android.view.LayoutInflater
 import android.view.View
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
-import kotlinx.android.synthetic.main.fragment_podcast.*
+import kotlinx.android.synthetic.main.fragment_episode.*
 import kotlinx.android.synthetic.main.item_time_label.view.*
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.entity.TimeLabel
 import pro.vylgin.radiot.extension.humanDuration
 import pro.vylgin.radiot.extension.loadImage
-import pro.vylgin.radiot.presentation.podcast.PodcastPresenter
-import pro.vylgin.radiot.presentation.podcast.PodcastView
+import pro.vylgin.radiot.presentation.episode.EpisodePresenter
+import pro.vylgin.radiot.presentation.episode.EpisodeView
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.toothpick.PrimitiveWrapper
-import pro.vylgin.radiot.toothpick.qualifier.PodcastNumber
+import pro.vylgin.radiot.toothpick.qualifier.EpisodeNumber
 import pro.vylgin.radiot.ui.global.BaseFragment
 import toothpick.Toothpick
 import toothpick.config.Module
 import java.util.*
 
 
-class PodcastFragment : BaseFragment(), PodcastView {
+class EpisodeFragment : BaseFragment(), EpisodeView {
 
     companion object {
-        private const val ARG_PODCAST = "arg_podcast"
-        private const val ARG_PODCAST_NUMBER = "arg_podcast_number"
+        private const val ARG_EPISODE = "arg_episode"
+        private const val ARG_EPISODE_NUMBER = "arg_episode_number"
 
-        fun createNewInstance(podcast: Entry) = PodcastFragment().apply {
+        fun createNewInstance(episode: Entry) = EpisodeFragment().apply {
             arguments = Bundle().also {
-                it.putParcelable(ARG_PODCAST, podcast)
+                it.putParcelable(ARG_EPISODE, episode)
             }
         }
 
-        fun createNewInstance(podcastNumber: Int) = PodcastFragment().apply {
+        fun createNewInstance(episodeNumber: Int) = EpisodeFragment().apply {
             arguments = Bundle().also {
-                it.putInt(ARG_PODCAST_NUMBER, podcastNumber)
+                it.putInt(ARG_EPISODE_NUMBER, episodeNumber)
             }
         }
     }
 
-    override val layoutRes = R.layout.fragment_podcast
+    override val layoutRes = R.layout.fragment_episode
 
     private val transitionListener = object : TransitionListenerAdapter() {
         override fun onTransitionEnd(transition: Transition) = presenter.transitionAnimationEnd()
     }
 
-    @InjectPresenter lateinit var presenter: PodcastPresenter
+    @InjectPresenter lateinit var presenter: EpisodePresenter
 
     @ProvidePresenter
-    fun providePresenter(): PodcastPresenter {
-        val scopeName = "podcast scope"
+    fun providePresenter(): EpisodePresenter {
+        val scopeName = "episode scope"
         val scope = Toothpick.openScopes(DI.MAIN_ACTIVITY_SCOPE, scopeName)
         scope.installModules(object : Module() {
             init {
-                var podcast = arguments?.getParcelable<Entry>(ARG_PODCAST)
-                if (podcast == null) {
-                    podcast = Entry("", "", Date(), listOf(), null, null, null, null, null)
+                var episode = arguments?.getParcelable<Entry>(ARG_EPISODE)
+                if (episode == null) {
+                    episode = Entry("", "", Date(), listOf(), null, null, null, null, null)
                 }
                 bind(Entry::class.java)
-                        .toInstance(podcast)
+                        .toInstance(episode)
                 bind(PrimitiveWrapper::class.java)
-                        .withName(PodcastNumber::class.java)
-                        .toInstance(PrimitiveWrapper(arguments?.getInt(ARG_PODCAST_NUMBER)))
+                        .withName(EpisodeNumber::class.java)
+                        .toInstance(PrimitiveWrapper(arguments?.getInt(ARG_EPISODE_NUMBER)))
             }
         })
-        return scope.getInstance(PodcastPresenter::class.java).also {
+        return scope.getInstance(EpisodePresenter::class.java).also {
             Toothpick.closeScope(scopeName)
         }
     }
@@ -93,7 +93,7 @@ class PodcastFragment : BaseFragment(), PodcastView {
         super.onActivityCreated(savedInstanceState)
 
         toolbar.setNavigationOnClickListener { presenter.onMenuClick() }
-        playButton.setOnClickListener { presenter.playPodcast() }
+        playButton.setOnClickListener { presenter.playEpisode() }
     }
 
     override fun showMessage(message: String) {
@@ -113,7 +113,7 @@ class PodcastFragment : BaseFragment(), PodcastView {
         posterIV.loadImage(imageUrl, activity)
     }
 
-    override fun showPodcastInfo(title: String, date: String, titleTransitionName: String, dateTransitionName: String) {
+    override fun showEpisodeInfo(title: String, date: String, titleTransitionName: String, dateTransitionName: String) {
         if (titleTransitionName.isNotEmpty() &&
                 dateTransitionName.isNotEmpty() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -125,7 +125,7 @@ class PodcastFragment : BaseFragment(), PodcastView {
         dateTV.text = date
     }
 
-    override fun showPodcastShowNotes(showNotes: String) {
+    override fun showEpisodeShowNotes(showNotes: String) {
         timeLabelsLL.visibility = View.GONE
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

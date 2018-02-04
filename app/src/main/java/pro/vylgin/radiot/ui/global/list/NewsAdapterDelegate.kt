@@ -18,15 +18,15 @@ class NewsAdapterDelegate(private val clickListener: (EntrySharedElement) -> Uni
             items[position] is ListItem.NewsItem
 
     override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =
-            PodcastViewHolder(parent.inflate(R.layout.item_news), clickListener)
+            NewsViewHolder(parent.inflate(R.layout.item_news), clickListener)
 
     override fun onBindViewHolder(items: MutableList<ListItem>,
                                   position: Int,
                                   viewHolder: RecyclerView.ViewHolder,
                                   payloads: MutableList<Any>) =
-            (viewHolder as PodcastViewHolder).bind((items[position] as ListItem.NewsItem).entry)
+            (viewHolder as NewsViewHolder).bind((items[position] as ListItem.NewsItem).entry)
 
-    private class PodcastViewHolder(val view: View, clickListener: (EntrySharedElement) -> Unit) : RecyclerView.ViewHolder(view) {
+    private class NewsViewHolder(val view: View, clickListener: (EntrySharedElement) -> Unit) : RecyclerView.ViewHolder(view) {
         private lateinit var news: Entry
 
         init {

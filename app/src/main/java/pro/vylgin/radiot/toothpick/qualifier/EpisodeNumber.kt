@@ -4,4 +4,4 @@ import javax.inject.Qualifier
 
 
 @Qualifier
-annotation class PodcastNumber
+annotation class EpisodeNumber

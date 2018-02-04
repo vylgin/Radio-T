@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.presentation.podcast
+package pro.vylgin.radiot.presentation.episode
 
 import android.os.Build
 import com.arellomobile.mvp.InjectViewState
@@ -14,57 +14,57 @@ import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.model.interactor.player.PlayerInteractor
 import pro.vylgin.radiot.presentation.global.ErrorHandler
 import pro.vylgin.radiot.toothpick.PrimitiveWrapper
-import pro.vylgin.radiot.toothpick.qualifier.PodcastNumber
+import pro.vylgin.radiot.toothpick.qualifier.EpisodeNumber
 import ru.terrakok.cicerone.Router
 import javax.inject.Inject
 
 @InjectViewState
-class PodcastPresenter @Inject constructor(
-        private var podcast: Entry,
-        @PodcastNumber private val podcastNumberWrapper: PrimitiveWrapper<Int>?,
+class EpisodePresenter @Inject constructor(
+        private var episode: Entry,
+        @EpisodeNumber private val episodeNumberWrapper: PrimitiveWrapper<Int>?,
         private val router: Router,
         private val entriesInteractor: EntriesInteractor,
         private val playerInteractor: PlayerInteractor,
         private val errorHandler: ErrorHandler
-) : MvpPresenter<PodcastView>() {
+) : MvpPresenter<EpisodeView>() {
 
     private val compositeDisposable = CompositeDisposable()
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
-        if (podcast.isEmpty()) {
-            entriesInteractor.getPodcast(podcastNumberWrapper?.value ?: -1)
+        if (episode.isEmpty()) {
+            entriesInteractor.getEpisode(episodeNumberWrapper?.value ?: -1)
                     .doOnSubscribe { viewState.showProgress(true) }
                     .doAfterTerminate { viewState.showProgress(false) }
                     .subscribe(
                             {
-                                podcast = it
-                                showPodcast(it)
+                                episode = it
+                                showEpisode(it)
                                 transitionAnimationEnd()
                             },
                             { errorHandler.proceed(it, { viewState.showMessage(it) }) }
                     )
                     .addTo(compositeDisposable)
         } else {
-            showPodcast(podcast)
+            showEpisode(episode)
         }
     }
 
-    private fun showPodcast(podcast: Entry) {
+    private fun showEpisode(episode: Entry) {
         viewState.run {
-            podcast.apply {
+            episode.apply {
                 showToolbarTitle(title)
                 val (imageViewTransitionName, titleTransitionName, dateTransitionName) = getTransitionNames()
                 showToolbarImage(image, imageViewTransitionName)
-                showPodcastInfo(podcast.title, podcast.date.humanTime(), titleTransitionName, dateTransitionName)
+                showEpisodeInfo(episode.title, episode.date.humanTime(), titleTransitionName, dateTransitionName)
 
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                     transitionAnimationEnd()
                 }
 
-                if (this@PodcastPresenter.podcast.isEmpty()) {
-                    showTimeLabelsOrShowNotes(podcast)
+                if (this@EpisodePresenter.episode.isEmpty()) {
+                    showTimeLabelsOrShowNotes(episode)
                 }
             }
         }
@@ -74,16 +74,16 @@ class PodcastPresenter @Inject constructor(
     fun onBackPressed() = router.exit()
 
     fun transitionAnimationEnd() {
-        if (podcast.url.isNotEmpty()) {
-            showTimeLabelsOrShowNotes(podcast)
+        if (episode.url.isNotEmpty()) {
+            showTimeLabelsOrShowNotes(episode)
         }
     }
 
-    private fun showTimeLabelsOrShowNotes(podcast: Entry) {
-        if (podcast.timeLabels != null) {
-            viewState.showTimeLabels(podcast.timeLabels)
-        } else if (podcast.showNotes != null) {
-            viewState.showPodcastShowNotes(podcast.showNotes)
+    private fun showTimeLabelsOrShowNotes(episode: Entry) {
+        if (episode.timeLabels != null) {
+            viewState.showTimeLabels(episode.timeLabels)
+        } else if (episode.showNotes != null) {
+            viewState.showEpisodeShowNotes(episode.showNotes)
         }
     }
 
@@ -91,12 +91,12 @@ class PodcastPresenter @Inject constructor(
         compositeDisposable.dispose()
     }
 
-    fun playPodcast() {
-        playerInteractor.playPodcast(podcast)
+    fun playEpisode() {
+        playerInteractor.playEpisode(episode)
     }
 
     fun seekTo(timeLabel: TimeLabel) {
-        playerInteractor.seekTo(podcast, timeLabel)
+        playerInteractor.seekTo(episode, timeLabel)
     }
 
 }

@@ -29,8 +29,8 @@ class EntryRepository @Inject constructor(
             .subscribeOn(schedulers.io())
             .observeOn(schedulers.ui())
 
-    fun getEntry(podcastNumber: Int) = api
-            .getEntry(podcastNumber)
+    fun getEntry(episodeNumber: Int) = api
+            .getEntry(episodeNumber)
             .subscribeOn(schedulers.io())
             .observeOn(schedulers.ui())
 }

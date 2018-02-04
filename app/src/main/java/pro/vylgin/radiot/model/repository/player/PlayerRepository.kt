@@ -6,5 +6,5 @@ import javax.inject.Inject
 class PlayerRepository @Inject constructor(
 
 ) {
-    var currentPodcast: Entry? = null
+    var currentEpisode: Entry? = null
 }

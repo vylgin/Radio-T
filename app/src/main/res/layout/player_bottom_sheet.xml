@@ -147,7 +147,7 @@
         tools:text="1:23:32" />
 
     <TextView
-        android:id="@+id/durationPodcastTV"
+        android:id="@+id/durationEpisodeTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"

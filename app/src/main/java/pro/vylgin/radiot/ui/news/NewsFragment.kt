@@ -23,11 +23,11 @@ import toothpick.config.Module
 class NewsFragment : BaseFragment(), NewsView {
 
     companion object {
-        private const val ARG_NEWS = "arg_podcast"
+        private const val ARG_NEWS = "arg_news"
 
-        fun createNewInstance(podcast: Entry) = NewsFragment().apply {
+        fun createNewInstance(news: Entry) = NewsFragment().apply {
             arguments = Bundle().also {
-                it.putParcelable(ARG_NEWS, podcast)
+                it.putParcelable(ARG_NEWS, news)
             }
         }
     }
@@ -46,9 +46,9 @@ class NewsFragment : BaseFragment(), NewsView {
         val scope = Toothpick.openScopes(DI.MAIN_ACTIVITY_SCOPE, scopeName)
         scope.installModules(object : Module() {
             init {
-                val podcast = arguments?.getParcelable<Entry>(ARG_NEWS)
+                val news = arguments?.getParcelable<Entry>(ARG_NEWS)
                 bind(Entry::class.java)
-                        .toInstance(podcast)
+                        .toInstance(news)
             }
         })
         return scope.getInstance(NewsPresenter::class.java).also {

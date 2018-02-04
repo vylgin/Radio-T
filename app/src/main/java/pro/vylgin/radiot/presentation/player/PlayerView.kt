@@ -14,7 +14,7 @@ interface PlayerView : MvpView {
     fun updateSmallImage(image: String?)
     fun updateDuration(duration: String, durationSec: Int)
     fun showTimeLabels(timeLabels: List<TimeLabel>)
-    fun showPodcastShowNotes(showNotes: String)
+    fun showEpisodeShowNotes(showNotes: String)
     fun highlightCurrentTimeLabel(timeLabelPosition: Int)
     fun updateCurrentTimeLabelTitle(topic: String)
     fun showTimeLabelTitle()

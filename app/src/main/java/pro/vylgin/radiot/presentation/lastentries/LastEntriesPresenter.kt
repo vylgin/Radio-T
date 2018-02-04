@@ -67,8 +67,8 @@ class LastEntriesPresenter @Inject constructor(
     fun loadNextEventsPage() = paginator.loadNewPage()
     fun onBackPressed() = router.exit()
 
-    fun onPodcastClicked(entrySharedElement: EntrySharedElement) {
-        router.navigateTo(Screens.PODCAST_SCREEN, entrySharedElement)
+    fun onEpisodeClicked(entrySharedElement: EntrySharedElement) {
+        router.navigateTo(Screens.EPISODE_SCREEN, entrySharedElement)
     }
 
     fun onPrepClicked(prep: Entry) {

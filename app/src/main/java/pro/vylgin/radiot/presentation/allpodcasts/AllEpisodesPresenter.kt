@@ -27,7 +27,7 @@ class AllEpisodesPresenter @Inject constructor(
     fun onMenuClick() = menuController.open()
     fun onBackPressed() = router.exit()
 
-    fun refreshEntries() = entriesInteractor.getLastEntry().subscribe(
+    fun refreshEntries() = entriesInteractor.getLastEpisodeNumber().subscribe(
             {
                 viewState.showRefreshProgress(false)
 
@@ -42,7 +42,7 @@ class AllEpisodesPresenter @Inject constructor(
     )
 
     fun onEpisodeClicked(episodeNumber: Int) {
-        router.navigateTo(Screens.PODCAST_SCREEN, episodeNumber)
+        router.navigateTo(Screens.EPISODE_SCREEN, episodeNumber)
     }
 
     fun onAscPressed() {

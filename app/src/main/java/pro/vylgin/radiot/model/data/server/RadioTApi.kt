@@ -23,9 +23,9 @@ interface RadioTApi {
             @Query("categories") categories: String
     ): Single<List<Entry>>
 
-    @GET("$API_PATH/podcast/{podcastNumber}")
+    @GET("$API_PATH/podcast/{episodeNumber}")
     fun getEntry(
-            @Path("podcastNumber") podcastNumber: Int
+            @Path("episodeNumber") episodeNumber: Int
     ): Single<Entry>
 
 

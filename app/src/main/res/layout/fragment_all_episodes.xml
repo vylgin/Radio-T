@@ -17,7 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_menu_white_24dp"
-        app:title="@string/all_podcasts_item" />
+        app:title="@string/all_episodes_item" />
 
     <include layout="@layout/layout_base_list" />
 

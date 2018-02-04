@@ -41,11 +41,11 @@ class PlayerFragment : BaseFragment(), PlayerView {
     }
 
     val playClickListener: (View) -> Unit = {
-        presenter.playPodcast()
+        presenter.playEpisode()
     }
 
     val pauseClickListener: (View) -> Unit = {
-        presenter.pausePodcast()
+        presenter.pauseEpisode()
     }
 
     val nextClickListener: (View) -> Unit = {
@@ -126,14 +126,14 @@ class PlayerFragment : BaseFragment(), PlayerView {
 
     override fun updateDuration(duration: String, durationSec: Int) {
         seekBar.max = durationSec
-        durationPodcastTV.text = duration
+        durationEpisodeTV.text = duration
     }
 
     override fun showTimeLabels(timeLabels: List<TimeLabel>) {
         initLabelsLayout(timeLabels)
     }
 
-    override fun showPodcastShowNotes(showNotes: String) {
+    override fun showEpisodeShowNotes(showNotes: String) {
         timeLabelsLL.visibility = View.GONE
         showNotesTV.visibility = View.VISIBLE
         showNotesTV.text = showNotes

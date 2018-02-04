@@ -10,9 +10,9 @@ class EntriesInteractor @Inject constructor(
 ) {
     fun getEntries() = entryRepository.getEntries()
 
-    fun getPodcast(podcastNumber: Int) = entryRepository.getEntry(podcastNumber)
+    fun getEpisode(episodeNumber: Int) = entryRepository.getEntry(episodeNumber)
 
-    fun getLastEntry() = entryRepository
+    fun getLastEpisodeNumber() = entryRepository
             .getEntries(1, listOf(Category.PODCAST))
             .flatMap { Single.just(it[0].title.substringAfter(' ').toInt()) }
 
