@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -80,7 +81,8 @@ class PlayerService : Service() {
     private lateinit var extractorsFactory: ExtractorsFactory
     private lateinit var dataSourceFactory: DataSource.Factory
 
-    @Inject lateinit var playerRepository: PlayerRepository
+    @Inject
+    lateinit var playerRepository: PlayerRepository
 
     private val seekHandler = Handler()
     private val seekRunnable = object : Runnable {
@@ -197,16 +199,23 @@ class PlayerService : Service() {
             metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, podcast.title)
             metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, resources.getString(R.string.app_name))
 
-            Glide.with(this@PlayerService)
-                    .asBitmap()
-                    .load(podcast.image)
-                    .into(object : SimpleTarget<Bitmap>() {
-                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>) {
-                            metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, resource)
-                            mediaSession.setMetadata(metadataBuilder.build())
-                            callback.invoke()
-                        }
-                    })
+            if (podcast.image == null) {
+                metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
+                        BitmapFactory.decodeResource(resources, R.drawable.exo_controls_play))
+                mediaSession.setMetadata(metadataBuilder.build())
+                callback.invoke()
+            } else {
+                Glide.with(this@PlayerService)
+                        .asBitmap()
+                        .load(podcast.image)
+                        .into(object : SimpleTarget<Bitmap>() {
+                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>) {
+                                metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, resource)
+                                mediaSession.setMetadata(metadataBuilder.build())
+                                callback.invoke()
+                            }
+                        })
+            }
         }
     }
 
@@ -372,7 +381,7 @@ class PlayerService : Service() {
         }
 
         fun getCurrentTimeLabel(): TimeLabel? {
-          return this@PlayerService.getCurrentTimeLabel()
+            return this@PlayerService.getCurrentTimeLabel()
         }
 
         fun getCurrentTimeLabelPosition(): Int {

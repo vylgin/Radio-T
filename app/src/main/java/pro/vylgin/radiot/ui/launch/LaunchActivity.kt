@@ -1,5 +1,6 @@
 package pro.vylgin.radiot.ui.launch
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -29,6 +30,7 @@ import pro.vylgin.radiot.ui.drawer.NavigationDrawerFragment
 import pro.vylgin.radiot.ui.global.BaseActivity
 import pro.vylgin.radiot.ui.global.BaseFragment
 import pro.vylgin.radiot.ui.global.list.EntrySharedElement
+import pro.vylgin.radiot.ui.lastentries.AllEpisodesFragment
 import pro.vylgin.radiot.ui.lastentries.LastEntriesFragment
 import pro.vylgin.radiot.ui.news.NewsFragment
 import pro.vylgin.radiot.ui.player.PlayerFragment
@@ -110,17 +112,23 @@ class LaunchActivity : BaseActivity(), LaunchView {
             updateNavDrawer()
         }
 
-        override fun createActivityIntent(screenKey: String?, data: Any?): Intent? = when (screenKey) {
+        override fun createActivityIntent(context: Context, screenKey: String?, data: Any?): Intent? = when (screenKey) {
             Screens.PREP_SCREEN -> Intent(Intent.ACTION_VIEW, Uri.parse((data as Entry).url))
             else -> null
         }
 
         override fun createFragment(screenKey: String?, data: Any?): Fragment? = when (screenKey) {
             Screens.LAST_ENTRIES_SCREEN -> LastEntriesFragment()
-            Screens.PODCAST_SCREEN -> PodcastFragment.createNewInstance((data as EntrySharedElement).entry)
+            Screens.PODCAST_SCREEN -> {
+                when (data) {
+                    is EntrySharedElement -> PodcastFragment.createNewInstance(data.entry)
+                    is Int -> PodcastFragment.createNewInstance(data)
+                    else -> null
+                }
+            }
             Screens.NEWS_SCREEN -> NewsFragment.createNewInstance((data as EntrySharedElement).entry)
             Screens.INFO_SCREEN -> NewsFragment.createNewInstance((data as EntrySharedElement).entry)
-//            Screens.ALL_PODCASTS_SCREEN -> AllPodcastsFragment()
+            Screens.ALL_PODCASTS_SCREEN -> AllEpisodesFragment()
 //            Screens.SEARCH_SCREEN -> SearchFragment.createNewInstance()
             else -> null
         }
@@ -171,7 +179,7 @@ class LaunchActivity : BaseActivity(), LaunchView {
             currentFragment?.let {
                 when (it) {
                     is LastEntriesFragment -> drawerFragment.onScreenChanged(NavigationDrawerView.MenuItem.LAST_ENTRIES)
-//                    is AllPodcastsFragment -> drawerFragment.onScreenChanged(NavigationDrawerView.MenuItem.ALL_PODCASTS)
+                    is AllEpisodesFragment -> drawerFragment.onScreenChanged(NavigationDrawerView.MenuItem.ALL_PODCASTS)
 //                    is SearchFragment -> drawerFragment.onScreenChanged(NavigationDrawerView.MenuItem.SEARCH)
                 }
                 enableNavDrawer(isNavDrawerAvailableForFragment(it))
@@ -181,7 +189,7 @@ class LaunchActivity : BaseActivity(), LaunchView {
 
     private fun isNavDrawerAvailableForFragment(currentFragment: Fragment) = when (currentFragment) {
         is LastEntriesFragment -> true
-//        is AllPodcastsFragment -> true
+        is AllEpisodesFragment -> true
 //        is SearchFragment -> true
         else -> false
     }

@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @InjectViewState
 class PodcastPresenter @Inject constructor(
-        private val podcast: Entry,
+        private var podcast: Entry,
         @PodcastNumber private val podcastNumberWrapper: PrimitiveWrapper<Int>?,
         private val router: Router,
         private val entriesInteractor: EntriesInteractor,
@@ -38,7 +38,11 @@ class PodcastPresenter @Inject constructor(
                     .doOnSubscribe { viewState.showProgress(true) }
                     .doAfterTerminate { viewState.showProgress(false) }
                     .subscribe(
-                            { showPodcast(it) },
+                            {
+                                podcast = it
+                                showPodcast(it)
+                                transitionAnimationEnd()
+                            },
                             { errorHandler.proceed(it, { viewState.showMessage(it) }) }
                     )
                     .addTo(compositeDisposable)
