@@ -16,5 +16,6 @@ class EntriesInteractor @Inject constructor(
             .getEntries(1, listOf(Category.PODCAST))
             .flatMap { Single.just(it[0].title.substringAfter(' ').toInt()) }
 
+    fun search(searchQuery: String) = entryRepository.search(searchQuery)
 
 }
