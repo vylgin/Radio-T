@@ -129,7 +129,6 @@ class LaunchActivity : BaseActivity(), LaunchView {
             Screens.NEWS_SCREEN -> NewsFragment.createNewInstance((data as EntrySharedElement).entry)
             Screens.INFO_SCREEN -> NewsFragment.createNewInstance((data as EntrySharedElement).entry)
             Screens.ALL_EPISODES_SCREEN -> AllEpisodesFragment()
-//            Screens.SEARCH_SCREEN -> SearchFragment.createNewInstance()
             else -> null
         }
 
@@ -180,7 +179,6 @@ class LaunchActivity : BaseActivity(), LaunchView {
                 when (it) {
                     is LastEntriesFragment -> drawerFragment.onScreenChanged(NavigationDrawerView.MenuItem.LAST_ENTRIES)
                     is AllEpisodesFragment -> drawerFragment.onScreenChanged(NavigationDrawerView.MenuItem.ALL_EPISODES)
-//                    is SearchFragment -> drawerFragment.onScreenChanged(NavigationDrawerView.MenuItem.SEARCH)
                 }
                 enableNavDrawer(isNavDrawerAvailableForFragment(it))
             }
@@ -190,7 +188,6 @@ class LaunchActivity : BaseActivity(), LaunchView {
     private fun isNavDrawerAvailableForFragment(currentFragment: Fragment) = when (currentFragment) {
         is LastEntriesFragment -> true
         is AllEpisodesFragment -> true
-//        is SearchFragment -> true
         else -> false
     }
     //endregion

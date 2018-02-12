@@ -5,7 +5,8 @@ import com.arellomobile.mvp.MvpPresenter
 import io.reactivex.disposables.CompositeDisposable
 import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView.MenuItem
-import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView.MenuItem.*
+import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView.MenuItem.ALL_EPISODES
+import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView.MenuItem.LAST_ENTRIES
 import pro.vylgin.radiot.presentation.global.GlobalMenuController
 import ru.terrakok.cicerone.Router
 import javax.inject.Inject
@@ -35,7 +36,6 @@ class NavigationDrawerPresenter @Inject constructor(
             when (item) {
                 LAST_ENTRIES -> router.newRootScreen(Screens.LAST_ENTRIES_SCREEN)
                 ALL_EPISODES -> router.newRootScreen(Screens.ALL_EPISODES_SCREEN)
-                SEARCH -> router.newRootScreen(Screens.SEARCH_SCREEN)
             }
         }
     }

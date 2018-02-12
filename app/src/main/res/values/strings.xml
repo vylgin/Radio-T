@@ -39,5 +39,6 @@
     <string name="notification_channel_name">Player controls</string>
     <string name="previous">previous</string>
     <string name="next">next</string>
+    <string name="search_empty">По данному запросу ничего не найдено</string>
 
 </resources>

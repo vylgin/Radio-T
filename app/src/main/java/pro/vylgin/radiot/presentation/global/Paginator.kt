@@ -5,7 +5,7 @@ import io.reactivex.disposables.Disposable
 
 
 class Paginator<T>(
-        private val requestFactory: (Int) -> Single<List<T>>,
+        var requestFactory: (Int) -> Single<List<T>>,
         private val viewController: ViewController<T>
 ) {
 

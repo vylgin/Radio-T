@@ -56,7 +56,7 @@ class AllEpisodesPresenter @Inject constructor(
     }
 
     private fun getEpisodeNumbers(isAsc: Boolean): List<Int> {
-        val episodeNumbers = (1..lastEpisodeNumber).toList()
+        val episodeNumbers = (0..lastEpisodeNumber).toList()
         return if (isAsc) {
             episodeNumbers
         } else {

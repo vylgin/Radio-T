@@ -56,52 +56,31 @@
 
             <TextView
                 android:id="@+id/lastEntriesMI"
+                fontPath="@string/font_main_medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/selector_primary_color"
                 android:drawablePadding="16dp"
+                android:drawableStart="@drawable/ic_queue_music_black_24dp"
                 android:gravity="center_vertical"
                 android:padding="16dp"
                 android:text="@string/last_entries_item"
                 android:textColor="@color/primaryText"
-                android:textSize="14sp"
-                fontPath="@string/font_main_medium" />
-            <!--android:drawableStart="@drawable/ic_queue_music_grey_800_24dp"-->
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/allEpisodesMI"
+                fontPath="@string/font_main_medium"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/selector_primary_color"
                 android:drawablePadding="16dp"
+                android:drawableStart="@drawable/ic_library_music_black_24dp"
                 android:gravity="center_vertical"
                 android:padding="16dp"
                 android:text="@string/all_episodes_item"
                 android:textColor="@color/primaryText"
-                android:textSize="14sp"
-                fontPath="@string/font_main_medium" />
-            <!--android:drawableStart="@drawable/ic_library_music_grey_800_24dp"-->
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/divider_size"
-                android:background="@color/divider"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:id="@+id/searchMI"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/selector_primary_color"
-                android:drawablePadding="16dp"
-                android:gravity="center_vertical"
-                android:padding="16dp"
-                android:text="@string/search_item"
-                android:textColor="@color/primaryText"
-                android:textSize="14sp"
-                fontPath="@string/font_main_medium" />
-            <!--android:drawableStart="@drawable/ic_search_grey_800_24dp"-->
+                android:textSize="14sp" />
 
         </LinearLayout>
     </android.support.constraint.ConstraintLayout>
