@@ -14,7 +14,7 @@ class ErrorHandler @Inject constructor(
     fun proceed(error: Throwable, messageListener: (String) -> Unit = {}) {
         Timber.e("Error: $error")
         if (error is ServerError) {
-            error.userMessage(resourceManager)
+            messageListener(error.userMessage(resourceManager))
         } else {
             messageListener(error.userMessage(resourceManager))
         }

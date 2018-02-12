@@ -87,9 +87,9 @@ dependencies {
     //Date
     implementation 'joda-time:joda-time:2.9.9'
     //ExoPlayer
-    compile 'com.google.android.exoplayer:exoplayer:r2.4.0'
-    compile 'com.google.android.exoplayer:exoplayer:r2.4.0'
-    compile 'com.google.android.exoplayer:extension-okhttp:r2.4.0'
+    implementation 'com.google.android.exoplayer:exoplayer:r2.4.0'
+    implementation 'com.google.android.exoplayer:exoplayer:r2.4.0'
+    implementation 'com.google.android.exoplayer:extension-okhttp:r2.4.0'
 
     //Test
     testImplementation 'junit:junit:4.12'

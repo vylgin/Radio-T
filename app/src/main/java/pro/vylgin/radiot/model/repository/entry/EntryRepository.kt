@@ -33,4 +33,12 @@ class EntryRepository @Inject constructor(
             .getEntry(episodeNumber)
             .subscribeOn(schedulers.io())
             .observeOn(schedulers.ui())
+
+    fun search(
+            searchQuery: String
+    ) = api
+            .search(searchQuery)
+            .subscribeOn(schedulers.io())
+            .observeOn(schedulers.ui())
+
 }

@@ -28,5 +28,9 @@ interface RadioTApi {
             @Path("episodeNumber") episodeNumber: Int
     ): Single<Entry>
 
+    @GET("$API_PATH/search")
+    fun search(
+            @Query("q") searchQuery: String
+    ): Single<List<Entry>>
 
 }

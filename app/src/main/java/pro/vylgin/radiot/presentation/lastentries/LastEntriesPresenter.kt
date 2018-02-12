@@ -2,6 +2,7 @@ package pro.vylgin.radiot.presentation.lastentries
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import io.reactivex.Single
 import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
@@ -20,13 +21,13 @@ class LastEntriesPresenter @Inject constructor(
         private val errorHandler: ErrorHandler
 ) : MvpPresenter<LastEntriesView>() {
 
-    override fun onFirstViewAttach() {
-        super.onFirstViewAttach()
-        refreshEntries()
-    }
+    private var searchQuery = ""
+
+    private val lastEntriesRequest: (Int) -> Single<List<Entry>> = { entriesInteractor.getEntries() }
+    private val searchRequest: (Int) -> Single<List<Entry>> = { entriesInteractor.search(searchQuery) }
 
     private val paginator = Paginator(
-            { entriesInteractor.getEntries() },
+            lastEntriesRequest,
             object : Paginator.ViewController<Entry> {
                 override fun showEmptyProgress(show: Boolean) {
                     viewState.showEmptyProgress(show)
@@ -62,7 +63,29 @@ class LastEntriesPresenter @Inject constructor(
             }
     )
 
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+        refreshEntries()
+    }
+
     fun onMenuClick() = menuController.open()
+
+    fun pressSearchButton() {
+        paginator.requestFactory = searchRequest
+    }
+
+    fun search(searchQuery: String) {
+        if (searchQuery.isNotEmpty()) {
+            this.searchQuery = searchQuery
+            refreshEntries()
+        }
+    }
+
+    fun pressStopSearchButton() {
+        paginator.requestFactory = lastEntriesRequest
+        refreshEntries()
+    }
+
     fun refreshEntries() = paginator.refresh()
     fun loadNextEventsPage() = paginator.loadNewPage()
     fun onBackPressed() = router.exit()

@@ -34,12 +34,10 @@ class NavigationDrawerFragment : BaseFragment(), NavigationDrawerView {
         super.onActivityCreated(savedInstanceState)
 
         lastEntriesMI.tag = MenuItem.LAST_ENTRIES
-        allEpisodesMI.tag = MenuItem.ALL_EPISODES
-        searchMI.tag = MenuItem.SEARCH
-
         lastEntriesMI.setOnClickListener(itemClickListener)
+
+        allEpisodesMI.tag = MenuItem.ALL_EPISODES
         allEpisodesMI.setOnClickListener(itemClickListener)
-        searchMI.setOnClickListener(itemClickListener)
     }
 
     override fun selectMenuItem(item: MenuItem) {

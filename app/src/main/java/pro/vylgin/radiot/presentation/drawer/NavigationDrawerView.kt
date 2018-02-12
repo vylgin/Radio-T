@@ -9,8 +9,7 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 interface NavigationDrawerView : MvpView {
     enum class MenuItem {
         LAST_ENTRIES,
-        ALL_EPISODES,
-        SEARCH
+        ALL_EPISODES
     }
 
     fun selectMenuItem(item: MenuItem)
