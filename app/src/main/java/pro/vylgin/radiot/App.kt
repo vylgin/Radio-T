@@ -1,6 +1,9 @@
 package pro.vylgin.radiot
 
 import android.app.Application
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.core.CrashlyticsCore
+import io.fabric.sdk.android.Fabric
 import pro.vylgin.radiot.model.data.server.ServerHolder
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.toothpick.module.AppModule
@@ -21,6 +24,7 @@ class App : Application() {
         initToothpick()
         initAppScope()
         initCalligraphy()
+        initCrashlytics()
     }
 
     private fun initLogger() {
@@ -54,5 +58,12 @@ class App : Application() {
                 .setDefaultFontPath(getString(R.string.font_main_regular))
                 .setFontAttrId(R.attr.fontPath)
                 .build())
+    }
+
+    private fun initCrashlytics() {
+        val crashlyticsKit = Crashlytics.Builder()
+                .core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                .build()
+        Fabric.with(this, crashlyticsKit)
     }
 }

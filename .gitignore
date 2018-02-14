@@ -12,5 +12,8 @@ local.properties
 # Mac OS
 .DS_Store
 
+# Fabric keys
+app/fabric.properties
+
 /captures
 .externalNativeBuild
