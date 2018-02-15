@@ -5,9 +5,11 @@ import android.os.Bundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
-import kotlinx.android.synthetic.main.fragment_last_entries.*
+import kotlinx.android.synthetic.main.fragment_all_episodes.*
 import kotlinx.android.synthetic.main.layout_base_list.*
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.extension.color
@@ -15,6 +17,7 @@ import pro.vylgin.radiot.presentation.lastentries.AllEpisodesPresenter
 import pro.vylgin.radiot.presentation.lastentries.AllEpisodesView
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.ui.allepisodes.AllEpisodesAdapter
+import pro.vylgin.radiot.ui.allepisodes.sort.SortType
 import pro.vylgin.radiot.ui.global.BaseFragment
 import toothpick.Toothpick
 
@@ -55,6 +58,7 @@ class AllEpisodesFragment : BaseFragment(), AllEpisodesView {
         super.onActivityCreated(savedInstanceState)
 
         initToolbar()
+        initSortSpinner()
         initRecyclerView()
     }
 
@@ -63,11 +67,31 @@ class AllEpisodesFragment : BaseFragment(), AllEpisodesView {
         toolbar.inflateMenu(R.menu.menu_all_episodes)
         toolbar.setOnMenuItemClickListener {
             when(it.itemId) {
-                R.id.asc -> presenter.onAscPressed()
-                R.id.desc -> presenter.onDescPressed()
+//                R.id.asc -> presenter.onAscPressed()
+//                R.id.desc -> presenter.onDescPressed()
                 else -> showMessage("Unknown option")
             }
             true
+        }
+    }
+
+    private fun initSortSpinner() {
+        val sorts = listOf(SortType.DESC, SortType.ASC)
+
+        val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, sorts)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        sortSpinner.adapter = adapter
+        sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(adapterView: AdapterView<*>, view: View, i: Int, l: Long) {
+                when(sorts[i]) {
+                    SortType.ASC -> presenter.onAscPressed()
+                    SortType.DESC -> presenter.onDescPressed()
+                }
+            }
+
+            override fun onNothingSelected(adapterView: AdapterView<*>) {
+
+            }
         }
     }
 
