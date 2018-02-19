@@ -18,4 +18,7 @@ class EntriesInteractor @Inject constructor(
 
     fun search(searchQuery: String) = entryRepository.search(searchQuery)
 
+    fun getAllEpisodeNumbers(): Single<List<Int>> = getLastEpisodeNumber()
+            .flatMap { Single.just((0..it).toList()) }
+
 }

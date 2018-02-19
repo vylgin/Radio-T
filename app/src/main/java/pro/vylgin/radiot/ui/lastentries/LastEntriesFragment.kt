@@ -77,7 +77,7 @@ class LastEntriesFragment : BaseFragment(), LastEntriesView {
         searchView.setOnSearchClickListener {  }
         searchMenuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
-                presenter.pressSearchButton()
+                presenter.pressStartSearchButton()
                 return true
             }
 

@@ -90,7 +90,7 @@ fun ImageView.loadImage(
                     .centerCrop()
 //                    .placeholder(R.drawable.ic_search_grey_800_24dp)
 //                    .error(R.drawable.ic_search_grey_800_24dp)
- )
+            )
             .transition(withCrossFade())
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
@@ -126,7 +126,7 @@ fun TimeLabel.humanDuration(): String {
     return "%02d:%02d:%02d".format(hour, minute, second)
 }
 
-fun TimeLabel.positionInMillis() : Long {
+fun TimeLabel.positionInMillis(): Long {
     val calendar: Calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Moscow"))
     calendar.time = time
 

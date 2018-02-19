@@ -70,7 +70,7 @@ class LastEntriesPresenter @Inject constructor(
 
     fun onMenuClick() = menuController.open()
 
-    fun pressSearchButton() {
+    fun pressStartSearchButton() {
         paginator.requestFactory = searchRequest
     }
 

@@ -13,4 +13,6 @@ interface AllEpisodesView : MvpView {
 
     @StateStrategyType(OneExecutionStateStrategy::class)
     fun showMessage(message: String)
+    fun showSortSpinner(show: Boolean)
+    fun enableRefreshLayout(enable: Boolean)
 }

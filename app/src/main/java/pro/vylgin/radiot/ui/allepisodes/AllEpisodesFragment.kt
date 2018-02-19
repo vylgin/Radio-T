@@ -4,6 +4,9 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.SearchView
+import android.text.InputType
+import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -51,7 +54,7 @@ class AllEpisodesFragment : BaseFragment(), AllEpisodesView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -65,14 +68,34 @@ class AllEpisodesFragment : BaseFragment(), AllEpisodesView {
     private fun initToolbar() {
         toolbar.setNavigationOnClickListener { presenter.onMenuClick() }
         toolbar.inflateMenu(R.menu.menu_all_episodes)
-        toolbar.setOnMenuItemClickListener {
-            when(it.itemId) {
-//                R.id.asc -> presenter.onAscPressed()
-//                R.id.desc -> presenter.onDescPressed()
-                else -> showMessage("Unknown option")
+
+        val searchMenuItem = toolbar.menu.findItem(R.id.search)
+        val searchView = searchMenuItem.actionView as SearchView
+        searchView.queryHint = resources.getString(R.string.search_all_episodes_item)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextChange(newText: String): Boolean {
+                presenter.search(newText)
+                return false
             }
-            true
-        }
+
+            override fun onQueryTextSubmit(query: String): Boolean {
+                return false
+            }
+        })
+        searchView.setOnSearchClickListener {  }
+        searchMenuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+                presenter.pressStartSearchButton()
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+                presenter.pressStopSearchButton()
+                return true
+            }
+
+        })
+        searchView.inputType = InputType.TYPE_CLASS_NUMBER
     }
 
     private fun initSortSpinner() {
@@ -82,7 +105,7 @@ class AllEpisodesFragment : BaseFragment(), AllEpisodesView {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         sortSpinner.adapter = adapter
         sortSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(adapterView: AdapterView<*>, view: View, i: Int, l: Long) {
+            override fun onItemSelected(adapterView: AdapterView<*>, view: View?, i: Int, l: Long) {
                 when(sorts[i]) {
                     SortType.ASC -> presenter.onAscPressed()
                     SortType.DESC -> presenter.onDescPressed()
@@ -95,6 +118,18 @@ class AllEpisodesFragment : BaseFragment(), AllEpisodesView {
         }
     }
 
+    override fun showSortSpinner(show: Boolean) {
+        if (show) {
+            sortSpinner.visibility = View.VISIBLE
+        } else {
+            sortSpinner.visibility = View.GONE
+        }
+    }
+
+    override fun enableRefreshLayout(enable: Boolean) {
+        swipeToRefresh.isEnabled = enable
+    }
+
     private fun initRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.setHasFixedSize(true)
@@ -105,7 +140,7 @@ class AllEpisodesFragment : BaseFragment(), AllEpisodesView {
 
         recyclerView.adapter = adapter
 
-        swipeToRefresh.setOnRefreshListener { presenter.refreshEntries() }
+        swipeToRefresh.setOnRefreshListener { presenter.swipeToRefresh() }
     }
 
     override fun showEpisodes(episodeNumbers: List<Int>) {

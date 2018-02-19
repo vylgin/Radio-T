@@ -2,8 +2,11 @@ package pro.vylgin.radiot.presentation.lastentries
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import io.reactivex.disposables.CompositeDisposable
 import pro.vylgin.radiot.Screens
+import pro.vylgin.radiot.extension.addTo
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
+import pro.vylgin.radiot.presentation.allpodcasts.AllEpisodesPresenterCache
 import pro.vylgin.radiot.presentation.global.ErrorHandler
 import pro.vylgin.radiot.presentation.global.GlobalMenuController
 import ru.terrakok.cicerone.Router
@@ -13,55 +16,74 @@ import javax.inject.Inject
 class AllEpisodesPresenter @Inject constructor(
         private val router: Router,
         private val entriesInteractor: EntriesInteractor,
+        private val allepisodesPresenterCache: AllEpisodesPresenterCache,
         private val menuController: GlobalMenuController,
         private val errorHandler: ErrorHandler
 ) : MvpPresenter<AllEpisodesView>() {
 
-    private var lastEpisodeNumber: Int = 0
+    private val compositeDisposable = CompositeDisposable()
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
-        refreshEntries()
+        refreshEpisodes()
     }
 
     fun onMenuClick() = menuController.open()
     fun onBackPressed() = router.exit()
 
-    fun refreshEntries() = entriesInteractor.getLastEpisodeNumber().subscribe(
+    fun swipeToRefresh() {
+        viewState.showRefreshProgress(true)
+        refreshEpisodes {
+            viewState.showRefreshProgress(false)
+        }
+    }
+
+    private fun refreshEpisodes(refreshFinishCallback: () -> Unit = {}) = entriesInteractor.getAllEpisodeNumbers().subscribe(
             {
-                viewState.showRefreshProgress(false)
-
-                lastEpisodeNumber = it
-
+                allepisodesPresenterCache.updateEpisodeNumbers(it)
                 onDescPressed()
+                refreshFinishCallback.invoke()
             },
             {
-                viewState.showRefreshProgress(false)
                 errorHandler.proceed(it, { viewState.showMessage(it) })
+                refreshFinishCallback.invoke()
             }
-    )
+    ).addTo(compositeDisposable)
+
+    fun pressStartSearchButton() {
+        viewState.showSortSpinner(false)
+        viewState.enableRefreshLayout(false)
+    }
+
+    fun search(searchQuery: String) {
+        if (searchQuery.isNotEmpty()) {
+            viewState.showEpisodes(allepisodesPresenterCache.getEpisodeNumbers()
+                    .filter { searchQuery.contains(it.toString()) }
+                    .sortedDescending())
+        }
+    }
+
+    fun pressStopSearchButton() {
+        viewState.showSortSpinner(true)
+        refreshEpisodes()
+        viewState.enableRefreshLayout(true)
+    }
 
     fun onEpisodeClicked(episodeNumber: Int) {
         router.navigateTo(Screens.EPISODE_SCREEN, episodeNumber)
     }
 
     fun onAscPressed() {
-        val episodeNumbers = getEpisodeNumbers(true)
+        val episodeNumbers = allepisodesPresenterCache.getEpisodeNumbers()
         viewState.showEpisodes(episodeNumbers)
     }
 
     fun onDescPressed() {
-        val episodeNumbers = getEpisodeNumbers(false)
+        val episodeNumbers = allepisodesPresenterCache.getEpisodeNumbers().reversed()
         viewState.showEpisodes(episodeNumbers)
     }
 
-    private fun getEpisodeNumbers(isAsc: Boolean): List<Int> {
-        val episodeNumbers = (0..lastEpisodeNumber).toList()
-        return if (isAsc) {
-            episodeNumbers
-        } else {
-            episodeNumbers.reversed()
-        }
+    override fun onDestroy() {
+        compositeDisposable.dispose()
     }
-
 }
