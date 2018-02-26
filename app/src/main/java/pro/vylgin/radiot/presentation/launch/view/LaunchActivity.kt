@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.ui.launch
+package pro.vylgin.radiot.presentation.launch.view
 
 import android.content.Context
 import android.content.Intent
@@ -22,8 +22,7 @@ import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView
 import pro.vylgin.radiot.presentation.global.GlobalMenuController
-import pro.vylgin.radiot.presentation.launch.LaunchPresenter
-import pro.vylgin.radiot.presentation.launch.LaunchView
+import pro.vylgin.radiot.presentation.launch.presenter.LaunchPresenter
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.toothpick.module.MainActivityModule
 import pro.vylgin.radiot.ui.drawer.NavigationDrawerFragment
