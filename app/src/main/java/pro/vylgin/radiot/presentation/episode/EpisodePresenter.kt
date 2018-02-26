@@ -12,7 +12,7 @@ import pro.vylgin.radiot.extension.humanTime
 import pro.vylgin.radiot.extension.isEmpty
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.model.interactor.player.PlayerInteractor
-import pro.vylgin.radiot.presentation.global.ErrorHandler
+import pro.vylgin.radiot.presentation.global.presenter.ErrorHandler
 import pro.vylgin.radiot.toothpick.PrimitiveWrapper
 import pro.vylgin.radiot.toothpick.qualifier.EpisodeNumber
 import ru.terrakok.cicerone.Router

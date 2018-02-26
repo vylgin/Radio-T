@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.presentation.global
+package pro.vylgin.radiot.presentation.global.presenter
 
 import com.jakewharton.rxrelay2.BehaviorRelay
 import io.reactivex.Observable

@@ -9,8 +9,8 @@ import pro.vylgin.radiot.R
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerPresenter
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView.MenuItem
+import pro.vylgin.radiot.presentation.global.view.BaseFragment
 import pro.vylgin.radiot.toothpick.DI
-import pro.vylgin.radiot.ui.global.BaseFragment
 import toothpick.Toothpick
 
 

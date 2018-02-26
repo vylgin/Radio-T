@@ -16,12 +16,12 @@ import kotlinx.android.synthetic.main.fragment_all_episodes.*
 import kotlinx.android.synthetic.main.layout_base_list.*
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.extension.color
+import pro.vylgin.radiot.presentation.global.view.BaseFragment
 import pro.vylgin.radiot.presentation.lastentries.AllEpisodesPresenter
 import pro.vylgin.radiot.presentation.lastentries.AllEpisodesView
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.ui.allepisodes.AllEpisodesAdapter
 import pro.vylgin.radiot.ui.allepisodes.sort.SortType
-import pro.vylgin.radiot.ui.global.BaseFragment
 import toothpick.Toothpick
 
 

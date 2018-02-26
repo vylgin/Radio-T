@@ -7,8 +7,8 @@ import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.extension.addTo
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.presentation.allpodcasts.AllEpisodesPresenterCache
-import pro.vylgin.radiot.presentation.global.ErrorHandler
-import pro.vylgin.radiot.presentation.global.GlobalMenuController
+import pro.vylgin.radiot.presentation.global.presenter.ErrorHandler
+import pro.vylgin.radiot.presentation.global.presenter.GlobalMenuController
 import ru.terrakok.cicerone.Router
 import javax.inject.Inject
 

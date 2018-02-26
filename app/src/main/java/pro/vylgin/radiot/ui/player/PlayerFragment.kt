@@ -16,10 +16,10 @@ import pro.vylgin.radiot.entity.TimeLabel
 import pro.vylgin.radiot.extension.color
 import pro.vylgin.radiot.extension.humanDuration
 import pro.vylgin.radiot.extension.loadImage
+import pro.vylgin.radiot.presentation.global.view.BaseFragment
 import pro.vylgin.radiot.presentation.player.PlayerPresenter
 import pro.vylgin.radiot.presentation.player.PlayerView
 import pro.vylgin.radiot.toothpick.DI
-import pro.vylgin.radiot.ui.global.BaseFragment
 import toothpick.Toothpick
 
 

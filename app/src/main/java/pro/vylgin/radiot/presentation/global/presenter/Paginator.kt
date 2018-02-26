@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.presentation.global
+package pro.vylgin.radiot.presentation.global.presenter
 
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable

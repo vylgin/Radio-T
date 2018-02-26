@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.ui.global
+package pro.vylgin.radiot.presentation.global.view
 
 import android.content.Context
 import android.os.Bundle

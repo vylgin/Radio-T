@@ -20,10 +20,10 @@ import pro.vylgin.radiot.extension.humanDuration
 import pro.vylgin.radiot.extension.loadImage
 import pro.vylgin.radiot.presentation.episode.EpisodePresenter
 import pro.vylgin.radiot.presentation.episode.EpisodeView
+import pro.vylgin.radiot.presentation.global.view.BaseFragment
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.toothpick.PrimitiveWrapper
 import pro.vylgin.radiot.toothpick.qualifier.EpisodeNumber
-import pro.vylgin.radiot.ui.global.BaseFragment
 import toothpick.Toothpick
 import toothpick.config.Module
 import java.util.*

@@ -12,10 +12,10 @@ import com.arellomobile.mvp.presenter.ProvidePresenter
 import kotlinx.android.synthetic.main.fragment_news.*
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.entity.Entry
+import pro.vylgin.radiot.presentation.global.view.BaseFragment
 import pro.vylgin.radiot.presentation.news.NewsPresenter
 import pro.vylgin.radiot.presentation.news.NewsView
 import pro.vylgin.radiot.toothpick.DI
-import pro.vylgin.radiot.ui.global.BaseFragment
 import toothpick.Toothpick
 import toothpick.config.Module
 

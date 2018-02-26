@@ -7,8 +7,8 @@ import org.junit.Test
 import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.model.data.server.ServerError
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
-import pro.vylgin.radiot.presentation.global.ErrorHandler
-import pro.vylgin.radiot.presentation.global.GlobalMenuController
+import pro.vylgin.radiot.presentation.global.presenter.ErrorHandler
+import pro.vylgin.radiot.presentation.global.presenter.GlobalMenuController
 import pro.vylgin.radiot.presentation.lastentries.AllEpisodesPresenter
 import pro.vylgin.radiot.presentation.lastentries.AllEpisodesView
 import ru.terrakok.cicerone.Router

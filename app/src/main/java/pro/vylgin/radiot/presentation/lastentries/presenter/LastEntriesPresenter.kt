@@ -6,9 +6,9 @@ import io.reactivex.Single
 import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
-import pro.vylgin.radiot.presentation.global.ErrorHandler
-import pro.vylgin.radiot.presentation.global.GlobalMenuController
-import pro.vylgin.radiot.presentation.global.Paginator
+import pro.vylgin.radiot.presentation.global.presenter.ErrorHandler
+import pro.vylgin.radiot.presentation.global.presenter.GlobalMenuController
+import pro.vylgin.radiot.presentation.global.presenter.Paginator
 import pro.vylgin.radiot.presentation.lastentries.LastEntriesContract
 import pro.vylgin.radiot.presentation.lastentries.view.LastEntriesView
 import pro.vylgin.radiot.ui.global.list.EntrySharedElement

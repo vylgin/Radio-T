@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.presentation.global
+package pro.vylgin.radiot.presentation.global.presenter
 
 import pro.vylgin.radiot.extension.userMessage
 import pro.vylgin.radiot.model.data.server.ServerError

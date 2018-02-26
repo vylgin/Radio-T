@@ -7,7 +7,7 @@ import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView.MenuItem
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView.MenuItem.ALL_EPISODES
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView.MenuItem.LAST_ENTRIES
-import pro.vylgin.radiot.presentation.global.GlobalMenuController
+import pro.vylgin.radiot.presentation.global.presenter.GlobalMenuController
 import ru.terrakok.cicerone.Router
 import javax.inject.Inject
 
