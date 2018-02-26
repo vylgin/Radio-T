@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.presentation.lastentries
+package pro.vylgin.radiot.presentation.lastentries.presenter
 
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
@@ -9,6 +9,8 @@ import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.presentation.global.ErrorHandler
 import pro.vylgin.radiot.presentation.global.GlobalMenuController
 import pro.vylgin.radiot.presentation.global.Paginator
+import pro.vylgin.radiot.presentation.lastentries.LastEntriesContract
+import pro.vylgin.radiot.presentation.lastentries.view.LastEntriesView
 import pro.vylgin.radiot.ui.global.list.EntrySharedElement
 import ru.terrakok.cicerone.Router
 import javax.inject.Inject
@@ -19,7 +21,7 @@ class LastEntriesPresenter @Inject constructor(
         private val entriesInteractor: EntriesInteractor,
         private val menuController: GlobalMenuController,
         private val errorHandler: ErrorHandler
-) : MvpPresenter<LastEntriesView>() {
+) : MvpPresenter<LastEntriesView>(), LastEntriesContract.Presenter {
 
     private var searchQuery = ""
 
@@ -68,41 +70,41 @@ class LastEntriesPresenter @Inject constructor(
         refreshEntries()
     }
 
-    fun onMenuClick() = menuController.open()
+    override fun onMenuClick() = menuController.open()
 
-    fun pressStartSearchButton() {
+    override fun pressStartSearchButton() {
         paginator.requestFactory = searchRequest
     }
 
-    fun search(searchQuery: String) {
+    override fun search(searchQuery: String) {
         if (searchQuery.isNotEmpty()) {
             this.searchQuery = searchQuery
             refreshEntries()
         }
     }
 
-    fun pressStopSearchButton() {
+    override fun pressStopSearchButton() {
         paginator.requestFactory = lastEntriesRequest
         refreshEntries()
     }
 
-    fun refreshEntries() = paginator.refresh()
-    fun loadNextEventsPage() = paginator.loadNewPage()
-    fun onBackPressed() = router.exit()
+    override fun refreshEntries() = paginator.refresh()
+    override fun loadNextEventsPage() = paginator.loadNewPage()
+    override fun onBackPressed() = router.exit()
 
-    fun onEpisodeClicked(entrySharedElement: EntrySharedElement) {
+    override fun onEpisodeClicked(entrySharedElement: EntrySharedElement) {
         router.navigateTo(Screens.EPISODE_SCREEN, entrySharedElement)
     }
 
-    fun onPrepClicked(prep: Entry) {
+    override fun onPrepClicked(prep: Entry) {
         router.newScreenChain(Screens.PREP_SCREEN, prep)
     }
 
-    fun onNewsClicked(entrySharedElement: EntrySharedElement) {
+    override fun onNewsClicked(entrySharedElement: EntrySharedElement) {
         router.navigateTo(Screens.NEWS_SCREEN, entrySharedElement)
     }
 
-    fun onInfoClicked(entrySharedElement: EntrySharedElement) {
+    override fun onInfoClicked(entrySharedElement: EntrySharedElement) {
         router.navigateTo(Screens.INFO_SCREEN, entrySharedElement)
     }
 

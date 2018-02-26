@@ -22,6 +22,7 @@ import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView
 import pro.vylgin.radiot.presentation.global.GlobalMenuController
+import pro.vylgin.radiot.presentation.lastentries.view.LastEntriesFragment
 import pro.vylgin.radiot.presentation.launch.presenter.LaunchPresenter
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.toothpick.module.MainActivityModule
@@ -31,7 +32,6 @@ import pro.vylgin.radiot.ui.global.BaseActivity
 import pro.vylgin.radiot.ui.global.BaseFragment
 import pro.vylgin.radiot.ui.global.list.EntrySharedElement
 import pro.vylgin.radiot.ui.lastentries.AllEpisodesFragment
-import pro.vylgin.radiot.ui.lastentries.LastEntriesFragment
 import pro.vylgin.radiot.ui.news.NewsFragment
 import pro.vylgin.radiot.ui.player.PlayerFragment
 import ru.terrakok.cicerone.NavigatorHolder

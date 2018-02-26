@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.ui.lastentries
+package pro.vylgin.radiot.presentation.lastentries.view
 
 import android.os.Build
 import android.os.Bundle
@@ -15,8 +15,7 @@ import pro.vylgin.radiot.R
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.extension.color
 import pro.vylgin.radiot.extension.visible
-import pro.vylgin.radiot.presentation.lastentries.LastEntriesPresenter
-import pro.vylgin.radiot.presentation.lastentries.LastEntriesView
+import pro.vylgin.radiot.presentation.lastentries.presenter.LastEntriesPresenter
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.ui.global.BaseFragment
 import pro.vylgin.radiot.ui.global.list.EntriesAdapter
