@@ -1,11 +1,11 @@
 package pro.vylgin.radiot.presentation.lastentries.presenter
 
 import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
 import io.reactivex.Single
 import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
+import pro.vylgin.radiot.presentation.global.presenter.BasePresenter
 import pro.vylgin.radiot.presentation.global.presenter.ErrorHandler
 import pro.vylgin.radiot.presentation.global.presenter.GlobalMenuController
 import pro.vylgin.radiot.presentation.global.presenter.Paginator
@@ -21,7 +21,7 @@ class LastEntriesPresenter @Inject constructor(
         private val entriesInteractor: EntriesInteractor,
         private val menuController: GlobalMenuController,
         private val errorHandler: ErrorHandler
-) : MvpPresenter<LastEntriesView>(), LastEntriesContract.Presenter {
+) : BasePresenter<LastEntriesView>(), LastEntriesContract.Presenter {
 
     private var searchQuery = ""
 

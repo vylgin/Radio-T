@@ -1,10 +1,10 @@
 package pro.vylgin.radiot.presentation.news
 
 import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.extension.getTransitionNames
 import pro.vylgin.radiot.extension.humanTime
+import pro.vylgin.radiot.presentation.global.presenter.BasePresenter
 import ru.terrakok.cicerone.Router
 import javax.inject.Inject
 
@@ -12,7 +12,7 @@ import javax.inject.Inject
 class NewsPresenter @Inject constructor(
         private val news: Entry,
         private val router: Router
-) : MvpPresenter<NewsView>() {
+) : BasePresenter<NewsView>() {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()

@@ -7,7 +7,6 @@ interface LaunchContract {
     }
 
     interface Presenter {
-        fun onFirstViewAttach()
         fun onBackPressed()
     }
 

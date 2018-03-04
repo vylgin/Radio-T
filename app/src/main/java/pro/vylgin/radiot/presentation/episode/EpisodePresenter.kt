@@ -2,16 +2,14 @@ package pro.vylgin.radiot.presentation.episode
 
 import android.os.Build
 import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
-import io.reactivex.disposables.CompositeDisposable
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.entity.TimeLabel
-import pro.vylgin.radiot.extension.addTo
 import pro.vylgin.radiot.extension.getTransitionNames
 import pro.vylgin.radiot.extension.humanTime
 import pro.vylgin.radiot.extension.isEmpty
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.model.interactor.player.PlayerInteractor
+import pro.vylgin.radiot.presentation.global.presenter.BasePresenter
 import pro.vylgin.radiot.presentation.global.presenter.ErrorHandler
 import pro.vylgin.radiot.toothpick.PrimitiveWrapper
 import pro.vylgin.radiot.toothpick.qualifier.EpisodeNumber
@@ -26,13 +24,14 @@ class EpisodePresenter @Inject constructor(
         private val entriesInteractor: EntriesInteractor,
         private val playerInteractor: PlayerInteractor,
         private val errorHandler: ErrorHandler
-) : MvpPresenter<EpisodeView>() {
-
-    private val compositeDisposable = CompositeDisposable()
+) : BasePresenter<EpisodeView>() {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
+        loadEpisode()
+    }
 
+    fun loadEpisode() {
         if (episode.isEmpty()) {
             entriesInteractor.getEpisode(episodeNumberWrapper?.value ?: -1)
                     .doOnSubscribe { viewState.showProgress(true) }
@@ -44,8 +43,7 @@ class EpisodePresenter @Inject constructor(
                                 transitionAnimationEnd()
                             },
                             { errorHandler.proceed(it, { viewState.showMessage(it) }) }
-                    )
-                    .addTo(compositeDisposable)
+                    ).connect()
         } else {
             showEpisode(episode)
         }
@@ -85,10 +83,6 @@ class EpisodePresenter @Inject constructor(
         } else if (episode.showNotes != null) {
             viewState.showEpisodeShowNotes(episode.showNotes)
         }
-    }
-
-    override fun onDestroy() {
-        compositeDisposable.dispose()
     }
 
     fun playEpisode() {

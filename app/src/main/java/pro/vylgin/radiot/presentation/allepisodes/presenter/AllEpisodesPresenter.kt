@@ -1,13 +1,11 @@
 package pro.vylgin.radiot.presentation.lastentries
 
 import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
-import io.reactivex.disposables.CompositeDisposable
 import pro.vylgin.radiot.Screens
-import pro.vylgin.radiot.extension.addTo
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.presentation.allepisodes.AllEpisodesContract
 import pro.vylgin.radiot.presentation.allpodcasts.AllEpisodesPresenterCache
+import pro.vylgin.radiot.presentation.global.presenter.BasePresenter
 import pro.vylgin.radiot.presentation.global.presenter.ErrorHandler
 import pro.vylgin.radiot.presentation.global.presenter.GlobalMenuController
 import ru.terrakok.cicerone.Router
@@ -20,9 +18,7 @@ class AllEpisodesPresenter @Inject constructor(
         private val allepisodesPresenterCache: AllEpisodesPresenterCache,
         private val menuController: GlobalMenuController,
         private val errorHandler: ErrorHandler
-) : MvpPresenter<AllEpisodesView>(), AllEpisodesContract.Presenter {
-
-    private val compositeDisposable = CompositeDisposable()
+) : BasePresenter<AllEpisodesView>(), AllEpisodesContract.Presenter {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
@@ -49,7 +45,7 @@ class AllEpisodesPresenter @Inject constructor(
                 errorHandler.proceed(it, { viewState.showMessage(it) })
                 refreshFinishCallback.invoke()
             }
-    ).addTo(compositeDisposable)
+    ).connect()
 
     override fun pressStartSearchButton() {
         viewState.showSortSpinner(false)
@@ -82,9 +78,5 @@ class AllEpisodesPresenter @Inject constructor(
     override fun onDescPressed() {
         val episodeNumbers = allepisodesPresenterCache.getEpisodeNumbers().reversed()
         viewState.showEpisodes(episodeNumbers)
-    }
-
-    override fun onDestroy() {
-        compositeDisposable.dispose()
     }
 }

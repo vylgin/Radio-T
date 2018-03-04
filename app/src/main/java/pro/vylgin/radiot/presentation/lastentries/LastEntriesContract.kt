@@ -20,7 +20,6 @@ interface LastEntriesContract {
     }
 
     interface Presenter {
-        fun onFirstViewAttach()
         fun onMenuClick()
         fun pressStartSearchButton()
         fun search(searchQuery: String)

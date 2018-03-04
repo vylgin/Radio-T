@@ -11,7 +11,6 @@ interface NavigationDrawerContract {
     interface Presenter {
         fun onScreenChanged(item: NavigationDrawerView.MenuItem)
         fun onMenuItemClick(item: NavigationDrawerView.MenuItem)
-        fun onDestroy()
     }
 
 }

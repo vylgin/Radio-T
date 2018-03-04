@@ -25,7 +25,6 @@ interface AllEpisodesContract {
         fun onEpisodeClicked(episodeNumber: Int)
         fun onAscPressed()
         fun onDescPressed()
-        fun onDestroy()
     }
 
 }

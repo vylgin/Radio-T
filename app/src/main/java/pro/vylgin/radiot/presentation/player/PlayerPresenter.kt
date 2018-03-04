@@ -1,16 +1,16 @@
 package pro.vylgin.radiot.presentation.player
 
 import com.arellomobile.mvp.InjectViewState
-import com.arellomobile.mvp.MvpPresenter
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.entity.TimeLabel
 import pro.vylgin.radiot.model.interactor.player.PlayerInteractor
+import pro.vylgin.radiot.presentation.global.presenter.BasePresenter
 import javax.inject.Inject
 
 @InjectViewState
 class PlayerPresenter @Inject constructor(
         private val playerInteractor: PlayerInteractor
-) : MvpPresenter<PlayerView>() {
+) : BasePresenter<PlayerView>() {
 
     private var episode: Entry? = null
     private var currentTimeLabel: TimeLabel? = null
