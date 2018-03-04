@@ -20,7 +20,8 @@ import kotlinx.android.synthetic.main.player_bottom_sheet.*
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.entity.Entry
-import pro.vylgin.radiot.presentation.drawer.NavigationDrawerView
+import pro.vylgin.radiot.presentation.drawer.view.NavigationDrawerFragment
+import pro.vylgin.radiot.presentation.drawer.view.NavigationDrawerView
 import pro.vylgin.radiot.presentation.global.presenter.GlobalMenuController
 import pro.vylgin.radiot.presentation.global.view.BaseActivity
 import pro.vylgin.radiot.presentation.global.view.BaseFragment
@@ -28,7 +29,6 @@ import pro.vylgin.radiot.presentation.lastentries.view.LastEntriesFragment
 import pro.vylgin.radiot.presentation.launch.presenter.LaunchPresenter
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.toothpick.module.MainActivityModule
-import pro.vylgin.radiot.ui.drawer.NavigationDrawerFragment
 import pro.vylgin.radiot.ui.episode.EpisodeFragment
 import pro.vylgin.radiot.ui.global.list.EntrySharedElement
 import pro.vylgin.radiot.ui.lastentries.AllEpisodesFragment
