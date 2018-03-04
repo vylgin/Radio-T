@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.ui.episode
+package pro.vylgin.radiot.presentation.episode.view
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -18,8 +18,7 @@ import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.entity.TimeLabel
 import pro.vylgin.radiot.extension.humanDuration
 import pro.vylgin.radiot.extension.loadImage
-import pro.vylgin.radiot.presentation.episode.EpisodePresenter
-import pro.vylgin.radiot.presentation.episode.EpisodeView
+import pro.vylgin.radiot.presentation.episode.presenter.EpisodePresenter
 import pro.vylgin.radiot.presentation.global.view.BaseFragment
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.toothpick.PrimitiveWrapper
@@ -51,7 +50,7 @@ class EpisodeFragment : BaseFragment(), EpisodeView {
     override val layoutRes = R.layout.fragment_episode
 
     private val transitionListener = object : TransitionListenerAdapter() {
-        override fun onTransitionEnd(transition: Transition) = presenter.transitionAnimationEnd()
+        override fun onTransitionEnd(transition: Transition) = presenter.showTimeLabelsOrShowNotes()
     }
 
     @InjectPresenter lateinit var presenter: EpisodePresenter

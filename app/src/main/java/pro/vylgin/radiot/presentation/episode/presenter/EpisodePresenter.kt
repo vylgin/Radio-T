@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.presentation.episode
+package pro.vylgin.radiot.presentation.episode.presenter
 
 import android.os.Build
 import com.arellomobile.mvp.InjectViewState
@@ -9,6 +9,8 @@ import pro.vylgin.radiot.extension.humanTime
 import pro.vylgin.radiot.extension.isEmpty
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.model.interactor.player.PlayerInteractor
+import pro.vylgin.radiot.presentation.episode.EpisodeContract
+import pro.vylgin.radiot.presentation.episode.view.EpisodeView
 import pro.vylgin.radiot.presentation.global.presenter.BasePresenter
 import pro.vylgin.radiot.presentation.global.presenter.ErrorHandler
 import pro.vylgin.radiot.toothpick.PrimitiveWrapper
@@ -24,14 +26,14 @@ class EpisodePresenter @Inject constructor(
         private val entriesInteractor: EntriesInteractor,
         private val playerInteractor: PlayerInteractor,
         private val errorHandler: ErrorHandler
-) : BasePresenter<EpisodeView>() {
+) : BasePresenter<EpisodeView>(), EpisodeContract.Presenter {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         loadEpisode()
     }
 
-    fun loadEpisode() {
+    override fun loadEpisode() {
         if (episode.isEmpty()) {
             entriesInteractor.getEpisode(episodeNumberWrapper?.value ?: -1)
                     .doOnSubscribe { viewState.showProgress(true) }
@@ -39,17 +41,17 @@ class EpisodePresenter @Inject constructor(
                     .subscribe(
                             {
                                 episode = it
-                                showEpisode(it)
-                                transitionAnimationEnd()
+                                showEpisode()
+                                showTimeLabelsOrShowNotes()
                             },
                             { errorHandler.proceed(it, { viewState.showMessage(it) }) }
                     ).connect()
         } else {
-            showEpisode(episode)
+            showEpisode()
         }
     }
 
-    private fun showEpisode(episode: Entry) {
+    private fun showEpisode() {
         viewState.run {
             episode.apply {
                 showToolbarTitle(title)
@@ -58,38 +60,28 @@ class EpisodePresenter @Inject constructor(
                 showEpisodeInfo(episode.title, episode.date.humanTime(), titleTransitionName, dateTransitionName)
 
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    transitionAnimationEnd()
-                }
-
-                if (this@EpisodePresenter.episode.isEmpty()) {
-                    showTimeLabelsOrShowNotes(episode)
+                    showTimeLabelsOrShowNotes()
                 }
             }
         }
     }
 
-    fun onMenuClick() = onBackPressed()
-    fun onBackPressed() = router.exit()
+    override fun onMenuClick() = onBackPressed()
+    override fun onBackPressed() = router.exit()
 
-    fun transitionAnimationEnd() {
-        if (episode.url.isNotEmpty()) {
-            showTimeLabelsOrShowNotes(episode)
-        }
-    }
-
-    private fun showTimeLabelsOrShowNotes(episode: Entry) {
+    override fun showTimeLabelsOrShowNotes() {
         if (episode.timeLabels != null) {
-            viewState.showTimeLabels(episode.timeLabels)
+            episode.timeLabels?.let { viewState.showTimeLabels(it) }
         } else if (episode.showNotes != null) {
-            viewState.showEpisodeShowNotes(episode.showNotes)
+            episode.showNotes?.let { viewState.showEpisodeShowNotes(it) }
         }
     }
 
-    fun playEpisode() {
+    override fun playEpisode() {
         playerInteractor.playEpisode(episode)
     }
 
-    fun seekTo(timeLabel: TimeLabel) {
+    override fun seekTo(timeLabel: TimeLabel) {
         playerInteractor.seekTo(episode, timeLabel)
     }
 

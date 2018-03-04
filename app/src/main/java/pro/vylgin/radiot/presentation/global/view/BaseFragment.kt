@@ -10,7 +10,7 @@ import android.widget.TextView
 import com.arellomobile.mvp.MvpAppCompatFragment
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.extension.color
-import pro.vylgin.radiot.ui.episode.EpisodeFragment
+import pro.vylgin.radiot.presentation.episode.view.EpisodeFragment
 
 
 abstract class BaseFragment : MvpAppCompatFragment() {
