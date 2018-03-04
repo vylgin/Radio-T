@@ -6,6 +6,7 @@ import io.reactivex.disposables.CompositeDisposable
 import pro.vylgin.radiot.Screens
 import pro.vylgin.radiot.extension.addTo
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
+import pro.vylgin.radiot.presentation.allepisodes.AllEpisodesContract
 import pro.vylgin.radiot.presentation.allpodcasts.AllEpisodesPresenterCache
 import pro.vylgin.radiot.presentation.global.presenter.ErrorHandler
 import pro.vylgin.radiot.presentation.global.presenter.GlobalMenuController
@@ -19,7 +20,7 @@ class AllEpisodesPresenter @Inject constructor(
         private val allepisodesPresenterCache: AllEpisodesPresenterCache,
         private val menuController: GlobalMenuController,
         private val errorHandler: ErrorHandler
-) : MvpPresenter<AllEpisodesView>() {
+) : MvpPresenter<AllEpisodesView>(), AllEpisodesContract.Presenter {
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -28,10 +29,10 @@ class AllEpisodesPresenter @Inject constructor(
         refreshEpisodes()
     }
 
-    fun onMenuClick() = menuController.open()
-    fun onBackPressed() = router.exit()
+    override fun onMenuClick() = menuController.open()
+    override fun onBackPressed() = router.exit()
 
-    fun swipeToRefresh() {
+    override fun swipeToRefresh() {
         viewState.showRefreshProgress(true)
         refreshEpisodes {
             viewState.showRefreshProgress(false)
@@ -50,12 +51,12 @@ class AllEpisodesPresenter @Inject constructor(
             }
     ).addTo(compositeDisposable)
 
-    fun pressStartSearchButton() {
+    override fun pressStartSearchButton() {
         viewState.showSortSpinner(false)
         viewState.enableRefreshLayout(false)
     }
 
-    fun search(searchQuery: String) {
+    override fun search(searchQuery: String) {
         if (searchQuery.isNotEmpty()) {
             viewState.showEpisodes(allepisodesPresenterCache.getEpisodeNumbers()
                     .filter { searchQuery.contains(it.toString()) }
@@ -63,22 +64,22 @@ class AllEpisodesPresenter @Inject constructor(
         }
     }
 
-    fun pressStopSearchButton() {
+    override fun pressStopSearchButton() {
         viewState.showSortSpinner(true)
         refreshEpisodes()
         viewState.enableRefreshLayout(true)
     }
 
-    fun onEpisodeClicked(episodeNumber: Int) {
+    override fun onEpisodeClicked(episodeNumber: Int) {
         router.navigateTo(Screens.EPISODE_SCREEN, episodeNumber)
     }
 
-    fun onAscPressed() {
+    override fun onAscPressed() {
         val episodeNumbers = allepisodesPresenterCache.getEpisodeNumbers()
         viewState.showEpisodes(episodeNumbers)
     }
 
-    fun onDescPressed() {
+    override fun onDescPressed() {
         val episodeNumbers = allepisodesPresenterCache.getEpisodeNumbers().reversed()
         viewState.showEpisodes(episodeNumbers)
     }

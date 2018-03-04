@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.ui.allepisodes
+package pro.vylgin.radiot.presentation.allpodcasts.ui
 
 import android.annotation.SuppressLint
 import android.support.v7.widget.RecyclerView

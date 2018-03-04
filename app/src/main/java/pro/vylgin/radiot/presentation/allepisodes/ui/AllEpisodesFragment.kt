@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.ui.lastentries
+package pro.vylgin.radiot.presentation.allpodcasts.ui
 
 import android.os.Build
 import android.os.Bundle
@@ -20,7 +20,6 @@ import pro.vylgin.radiot.presentation.global.view.BaseFragment
 import pro.vylgin.radiot.presentation.lastentries.AllEpisodesPresenter
 import pro.vylgin.radiot.presentation.lastentries.AllEpisodesView
 import pro.vylgin.radiot.toothpick.DI
-import pro.vylgin.radiot.ui.allepisodes.AllEpisodesAdapter
 import pro.vylgin.radiot.ui.allepisodes.sort.SortType
 import toothpick.Toothpick
 
