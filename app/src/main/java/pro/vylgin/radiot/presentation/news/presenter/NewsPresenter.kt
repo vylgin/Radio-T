@@ -1,10 +1,12 @@
-package pro.vylgin.radiot.presentation.news
+package pro.vylgin.radiot.presentation.news.presenter
 
 import com.arellomobile.mvp.InjectViewState
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.extension.getTransitionNames
 import pro.vylgin.radiot.extension.humanTime
 import pro.vylgin.radiot.presentation.global.presenter.BasePresenter
+import pro.vylgin.radiot.presentation.news.NewsContract
+import pro.vylgin.radiot.presentation.news.view.NewsView
 import ru.terrakok.cicerone.Router
 import javax.inject.Inject
 
@@ -12,14 +14,14 @@ import javax.inject.Inject
 class NewsPresenter @Inject constructor(
         private val news: Entry,
         private val router: Router
-) : BasePresenter<NewsView>() {
+) : BasePresenter<NewsView>(), NewsContract.Presenter {
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         showNews()
     }
 
-    private fun showNews() {
+    override fun showNews() {
         viewState.run {
             news.apply {
                 showToolbarTitle(title)
@@ -29,14 +31,10 @@ class NewsPresenter @Inject constructor(
         }
     }
 
-    fun onMenuClick() = onBackPressed()
-    fun onBackPressed() = router.exit()
+    override fun onMenuClick() = onBackPressed()
+    override fun onBackPressed() = router.exit()
 
-    fun transitionAnimationEnd() {
-        showNewsShowNotes()
-    }
-
-    private fun showNewsShowNotes() {
+    override fun showNewsShowNotes() {
         viewState.showNewsShowNotes(news.showNotes ?: "")
     }
 

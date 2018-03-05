@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.ui.news
+package pro.vylgin.radiot.presentation.news.view
 
 import android.os.Build
 import android.os.Bundle
@@ -13,8 +13,7 @@ import kotlinx.android.synthetic.main.fragment_news.*
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.presentation.global.view.BaseFragment
-import pro.vylgin.radiot.presentation.news.NewsPresenter
-import pro.vylgin.radiot.presentation.news.NewsView
+import pro.vylgin.radiot.presentation.news.presenter.NewsPresenter
 import pro.vylgin.radiot.toothpick.DI
 import toothpick.Toothpick
 import toothpick.config.Module
@@ -35,7 +34,7 @@ class NewsFragment : BaseFragment(), NewsView {
     override val layoutRes = R.layout.fragment_news
 
     private val transitionListener = object : TransitionListenerAdapter() {
-        override fun onTransitionEnd(transition: Transition) = presenter.transitionAnimationEnd()
+        override fun onTransitionEnd(transition: Transition) = presenter.showNewsShowNotes()
     }
 
     @InjectPresenter lateinit var presenter: NewsPresenter
