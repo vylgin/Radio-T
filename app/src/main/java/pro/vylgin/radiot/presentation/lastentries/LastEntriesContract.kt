@@ -1,7 +1,5 @@
 package pro.vylgin.radiot.presentation.lastentries
 
-import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
-import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.ui.global.list.EntrySharedElement
 
@@ -14,8 +12,6 @@ interface LastEntriesContract {
         fun showEmptyView(show: Boolean)
         fun showEmptyError(show: Boolean, message: String?)
         fun showEntries(show: Boolean, entries: List<Entry>)
-
-        @StateStrategyType(OneExecutionStateStrategy::class)
         fun showMessage(message: String)
     }
 
