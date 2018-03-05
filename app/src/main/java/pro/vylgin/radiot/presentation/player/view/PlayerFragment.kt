@@ -1,4 +1,4 @@
-package pro.vylgin.radiot.ui.player
+package pro.vylgin.radiot.presentation.player.view
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -17,8 +17,7 @@ import pro.vylgin.radiot.extension.color
 import pro.vylgin.radiot.extension.humanDuration
 import pro.vylgin.radiot.extension.loadImage
 import pro.vylgin.radiot.presentation.global.view.BaseFragment
-import pro.vylgin.radiot.presentation.player.PlayerPresenter
-import pro.vylgin.radiot.presentation.player.PlayerView
+import pro.vylgin.radiot.presentation.player.presenter.PlayerPresenter
 import pro.vylgin.radiot.toothpick.DI
 import toothpick.Toothpick
 
@@ -40,19 +39,19 @@ class PlayerFragment : BaseFragment(), PlayerView {
         }
     }
 
-    val playClickListener: (View) -> Unit = {
+    private val playClickListener: (View) -> Unit = {
         presenter.playEpisode()
     }
 
-    val pauseClickListener: (View) -> Unit = {
+    private val pauseClickListener: (View) -> Unit = {
         presenter.pauseEpisode()
     }
 
-    val nextClickListener: (View) -> Unit = {
+    private val nextClickListener: (View) -> Unit = {
         presenter.playNextTopic()
     }
 
-    val prevClickListener: (View) -> Unit = {
+    private val prevClickListener: (View) -> Unit = {
         presenter.playPrevTopic()
     }
 

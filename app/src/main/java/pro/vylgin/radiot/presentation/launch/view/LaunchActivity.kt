@@ -30,10 +30,10 @@ import pro.vylgin.radiot.presentation.global.view.BaseFragment
 import pro.vylgin.radiot.presentation.lastentries.view.LastEntriesFragment
 import pro.vylgin.radiot.presentation.launch.presenter.LaunchPresenter
 import pro.vylgin.radiot.presentation.news.view.NewsFragment
+import pro.vylgin.radiot.presentation.player.view.PlayerFragment
 import pro.vylgin.radiot.toothpick.DI
 import pro.vylgin.radiot.toothpick.module.MainActivityModule
 import pro.vylgin.radiot.ui.global.list.EntrySharedElement
-import pro.vylgin.radiot.ui.player.PlayerFragment
 import ru.terrakok.cicerone.NavigatorHolder
 import ru.terrakok.cicerone.android.SupportAppNavigator
 import ru.terrakok.cicerone.commands.Command
