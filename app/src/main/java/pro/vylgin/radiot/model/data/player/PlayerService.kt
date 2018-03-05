@@ -46,8 +46,8 @@ import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.entity.TimeLabel
 import pro.vylgin.radiot.extension.positionInMillis
 import pro.vylgin.radiot.model.repository.player.PlayerRepository
+import pro.vylgin.radiot.presentation.launch.view.LaunchActivity
 import pro.vylgin.radiot.toothpick.DI
-import pro.vylgin.radiot.ui.launch.LaunchActivity
 import timber.log.Timber
 import toothpick.Toothpick
 import java.io.File

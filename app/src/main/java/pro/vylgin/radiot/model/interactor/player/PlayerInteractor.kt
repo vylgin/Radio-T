@@ -25,7 +25,7 @@ class PlayerInteractor @Inject constructor(
     lateinit var mediaController: MediaControllerCompat
     var statePlaying: Boolean = false
 
-    val playerServiceConnection: ServiceConnection = object : ServiceConnection {
+    private val playerServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             playerServiceBinder = service as PlayerService.PlayerServiceBinder
             try {

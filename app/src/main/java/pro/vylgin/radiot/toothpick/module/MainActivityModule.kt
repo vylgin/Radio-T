@@ -1,6 +1,6 @@
 package pro.vylgin.radiot.toothpick.module
 
-import pro.vylgin.radiot.presentation.global.GlobalMenuController
+import pro.vylgin.radiot.presentation.global.presenter.GlobalMenuController
 import toothpick.config.Module
 
 

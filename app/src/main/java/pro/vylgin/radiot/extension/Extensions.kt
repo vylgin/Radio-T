@@ -144,3 +144,7 @@ fun Entry.getTransitionNames(): List<String> {
 fun Entry.isEmpty(): Boolean {
     return url.isEmpty()
 }
+
+fun Entry.isNotEmpty(): Boolean {
+    return url.isNotEmpty()
+}
