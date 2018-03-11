@@ -13,7 +13,6 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Binder
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
@@ -40,6 +39,10 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.google.android.exoplayer2.util.Util
+import io.reactivex.Observable
+import io.reactivex.Observer
+import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.entity.Entry
@@ -51,14 +54,13 @@ import pro.vylgin.radiot.toothpick.DI
 import timber.log.Timber
 import toothpick.Toothpick
 import java.io.File
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class PlayerService : Service() {
 
     private val NOTIFICATION_ID = 404
     private val NOTIFICATION_DEFAULT_CHANNEL_ID = "radiot_channel"
-
-    private val seekDelay: Long = 1000
 
     private val metadataBuilder = MediaMetadataCompat.Builder()
 
@@ -84,14 +86,24 @@ class PlayerService : Service() {
     @Inject
     lateinit var playerRepository: PlayerRepository
 
-    private val seekHandler = Handler()
-    private val seekRunnable = object : Runnable {
-        override fun run() {
-            updateNotificationTimeLabel()
-            NotificationManagerCompat.from(this@PlayerService).notify(NOTIFICATION_ID, getNotification(exoPlayer.playbackState))
-            seekHandler.postDelayed(this, seekDelay)
-        }
-    }
+    private var playerDisposable: Disposable? = null
+
+    private val playerStateSubject: BehaviorSubject<PlayerState> = BehaviorSubject.createDefault(PlayerState.STOPPED)
+
+    private val playerObservable = Observable
+            .interval(1, TimeUnit.SECONDS)
+            .flatMap {
+                val seekModel = SeekModel(
+                        getDurationTextFormatted(),
+                        getDurationInSeconds(),
+                        getCurrentPositionTextFormatted(),
+                        getCurrentPositionInSeconds(),
+                        getCurrentTimeLabel(),
+                        getCurrentTimeLabelPosition(),
+                        getBuffer()
+                )
+                Observable.just(seekModel)
+            }
 
     private val mediaSessionCallback: MediaSessionCompat.Callback = object : MediaSessionCompat.Callback() {
         private var currentUri: Uri? = null
@@ -130,8 +142,18 @@ class PlayerService : Service() {
 
                 refreshNotificationAndForegroundStatus(currentState)
 
-                seekHandler.removeCallbacks(seekRunnable)
-                seekHandler.post(seekRunnable)
+                if (playerDisposable != null) {
+                    playerDisposable?.dispose()
+                }
+
+                playerDisposable = playerObservable.subscribe {
+                    updateNotificationTimeLabel(it)
+                    NotificationManagerCompat.from(this@PlayerService).notify(NOTIFICATION_ID, getNotification(exoPlayer.playbackState))
+
+                    Timber.d("seekModel = $it")
+                }
+
+                playerStateSubject.onNext(PlayerState.PLAYING)
             }
         }
 
@@ -146,7 +168,9 @@ class PlayerService : Service() {
 
             refreshNotificationAndForegroundStatus(currentState)
 
-            seekHandler.removeCallbacks(seekRunnable)
+            playerDisposable?.dispose()
+
+            playerStateSubject.onNext(PlayerState.PAUSED)
         }
 
         override fun onStop() {
@@ -174,7 +198,9 @@ class PlayerService : Service() {
 
             stopSelf()
 
-            seekHandler.removeCallbacks(seekRunnable)
+            playerDisposable?.dispose()
+
+            playerStateSubject.onNext(PlayerState.STOPPED)
         }
 
         override fun onSkipToNext() {
@@ -219,11 +245,11 @@ class PlayerService : Service() {
         }
     }
 
-    private fun updateNotificationTimeLabel() {
+    private fun updateNotificationTimeLabel(seekModel: SeekModel) {
         val episode = playerRepository.currentEpisode ?: return
 
         if (episode.timeLabels != null) {
-            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, getCurrentTimeLabel()?.topic)
+            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, seekModel.currentTimeLabel?.topic)
             mediaSession.setMetadata(metadataBuilder.build())
         }
     }
@@ -256,7 +282,7 @@ class PlayerService : Service() {
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             if (playWhenReady && playbackState == ExoPlayer.STATE_ENDED) {
-                mediaSessionCallback.onSkipToNext()
+//                mediaSessionCallback.onSkipToNext()
             }
         }
 
@@ -323,7 +349,7 @@ class PlayerService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        seekHandler.removeCallbacks(seekRunnable)
+        playerDisposable?.dispose()
         mediaSession.release()
         exoPlayer.release()
     }
@@ -340,54 +366,6 @@ class PlayerService : Service() {
             exoPlayer.seekTo(positionMs)
         }
 
-        fun getCurrentPosition(): String {
-            val millis = exoPlayer.currentPosition
-
-            val seconds = (millis / 1000).toInt() % 60
-            val minutes = (millis / (1000 * 60) % 60).toInt()
-            val hours = (millis / (1000 * 60 * 60) % 24).toInt()
-
-            return String.format("%d:%02d:%02d", hours, minutes, seconds)
-        }
-
-        fun getBufferedPercentage(): Int {
-            return exoPlayer.bufferedPercentage
-        }
-
-        fun getProgress(): Int {
-            return (exoPlayer.currentPosition / 1000).toInt()
-        }
-
-        fun getBuffered(): Int {
-            return (exoPlayer.bufferedPercentage / 100.0 * exoPlayer.duration / 1000.0).toInt()
-        }
-
-        fun getDuration(): String {
-            val millis = exoPlayer.duration
-
-            val seconds = (millis / 1000).toInt() % 60
-            val minutes = (millis / (1000 * 60) % 60).toInt()
-            val hours = (millis / (1000 * 60 * 60) % 24).toInt()
-
-            return String.format("%d:%02d:%02d", hours, minutes, seconds)
-        }
-
-        fun getDurationSec(): Int {
-            return (exoPlayer.duration / 1000).toInt()
-        }
-
-        fun getCurrentPositionSec(): Int {
-            return this@PlayerService.getCurrentPositionSec()
-        }
-
-        fun getCurrentTimeLabel(): TimeLabel? {
-            return this@PlayerService.getCurrentTimeLabel()
-        }
-
-        fun getCurrentTimeLabelPosition(): Int {
-            return this@PlayerService.getCurrentTimeLabelPosition()
-        }
-
         fun playNextTimeLabel() {
             this@PlayerService.playNextTimeLabel()
         }
@@ -395,6 +373,40 @@ class PlayerService : Service() {
         fun playPrevTimeLabel() {
             this@PlayerService.playPrevTimeLabel()
         }
+
+        fun getPlayerObservable() = playerObservable
+
+        fun addPlayerStateObserver(stateObserver: Observer<PlayerState>) {
+            this@PlayerService.addPlayerStateObserver(stateObserver)
+        }
+    }
+
+    private fun getCurrentPositionTextFormatted(): String {
+        val millis = exoPlayer.currentPosition
+
+        val seconds = (millis / 1000).toInt() % 60
+        val minutes = (millis / (1000 * 60) % 60).toInt()
+        val hours = (millis / (1000 * 60 * 60) % 24).toInt()
+
+        return String.format("%d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    private fun getDurationTextFormatted(): String {
+        val millis = exoPlayer.duration
+
+        val seconds = (millis / 1000).toInt() % 60
+        val minutes = (millis / (1000 * 60) % 60).toInt()
+        val hours = (millis / (1000 * 60 * 60) % 24).toInt()
+
+        return String.format("%d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    private fun getDurationInSeconds(): Int {
+        return (exoPlayer.duration / 1000).toInt()
+    }
+
+    private fun getBuffer(): Int {
+        return (exoPlayer.bufferedPercentage / 100.0 * exoPlayer.duration / 1000.0).toInt()
     }
 
     private fun playNextTimeLabel() {
@@ -407,13 +419,13 @@ class PlayerService : Service() {
         exoPlayer.seekTo(prevTimeLabel.positionInMillis())
     }
 
-    private fun getCurrentPositionSec(): Int {
+    private fun getCurrentPositionInSeconds(): Int {
         return (exoPlayer.currentPosition / 1000).toInt()
     }
 
     private fun getCurrentTimeLabel(): TimeLabel? {
         val timeLabels = playerRepository.currentEpisode?.timeLabels ?: return null
-        val currentPosition = getCurrentPositionSec()
+        val currentPosition = getCurrentPositionInSeconds()
 
         for (timeLabel in timeLabels) {
             val currentPositionSec = timeLabel.positionInMillis() / 1000
@@ -454,6 +466,10 @@ class PlayerService : Service() {
         val timeLabels = currentEpisode.timeLabels ?: return -1
         val currentTimeLabel = getCurrentTimeLabel()
         return timeLabels.indexOf(currentTimeLabel)
+    }
+
+    private fun addPlayerStateObserver(stateObserver: Observer<PlayerState>) {
+        playerStateSubject.subscribe(stateObserver)
     }
 
     private fun refreshNotificationAndForegroundStatus(playbackState: Int) {

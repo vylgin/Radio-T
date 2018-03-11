@@ -2,10 +2,9 @@ package pro.vylgin.radiot.toothpick.module
 
 import android.content.Context
 import pro.vylgin.radiot.BuildConfig
+import pro.vylgin.radiot.model.data.player.PlayerHolder
 import pro.vylgin.radiot.model.data.server.ServerHolder
 import pro.vylgin.radiot.model.data.storage.Prefs
-import pro.vylgin.radiot.model.interactor.player.PlayerInteractor
-import pro.vylgin.radiot.model.repository.player.PlayerRepository
 import pro.vylgin.radiot.model.system.AppSchedulers
 import pro.vylgin.radiot.model.system.ResourceManager
 import pro.vylgin.radiot.model.system.SchedulersProvider
@@ -36,7 +35,6 @@ class AppModule(context: Context) : Module() {
         bind(ServerHolder::class.java).to(Prefs::class.java).singletonInScope()
 
         //Player
-        bind(PlayerRepository::class.java).singletonInScope()
-        bind(PlayerInteractor::class.java).singletonInScope()
+        bind(PlayerHolder::class.java).to(Prefs::class.java).singletonInScope()
     }
 }

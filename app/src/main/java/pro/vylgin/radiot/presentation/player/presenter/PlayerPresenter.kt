@@ -1,12 +1,17 @@
 package pro.vylgin.radiot.presentation.player.presenter
 
 import com.arellomobile.mvp.InjectViewState
+import io.reactivex.Observer
+import io.reactivex.disposables.Disposable
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.entity.TimeLabel
+import pro.vylgin.radiot.model.data.player.PlayerState
+import pro.vylgin.radiot.model.data.player.SeekModel
 import pro.vylgin.radiot.model.interactor.player.PlayerInteractor
 import pro.vylgin.radiot.presentation.global.presenter.BasePresenter
 import pro.vylgin.radiot.presentation.player.PlayerContract
 import pro.vylgin.radiot.presentation.player.view.PlayerView
+import timber.log.Timber
 import javax.inject.Inject
 
 @InjectViewState
@@ -17,14 +22,59 @@ class PlayerPresenter @Inject constructor(
     private var episode: Entry? = null
     private var currentTimeLabel: TimeLabel? = null
 
+    private val observer = object : Observer<PlayerState> {
+        override fun onComplete() {
+
+        }
+
+        override fun onSubscribe(disposable: Disposable) {
+            disposable.connect()
+        }
+
+        override fun onNext(playerState: PlayerState) {
+            when (playerState) {
+                PlayerState.STOPPED -> {
+                    viewState.showPlayButton()
+                }
+                PlayerState.PAUSED -> {
+                    viewState.showPlayButton()
+                }
+                PlayerState.PLAYING -> {
+                    viewState.showPauseButton()
+                    playerInteractor.getPlayerObserver()
+                            .subscribe {
+                                checkSeek(it)
+                            }.connect()
+                }
+            }
+
+            Timber.d("playerState = $playerState")
+        }
+
+        override fun onError(error: Throwable) {
+            Timber.e(error)
+        }
+    }
+
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
         init()
     }
 
     override fun init() {
-        episode = playerInteractor.getCurrentEpisode()
+        playerInteractor.getLastPlayedEpisode()
+                .subscribe(
+                        {
+                            episode = it
+                            initPlayer()
+                        },
+                        {
+                            initPlayer()
+                        }
+                ).connect()
+    }
 
+    private fun initPlayer() {
         checkNeedShowPlayerPanel()
         updateEpisodeInfo()
         bindPlayerService()
@@ -36,7 +86,9 @@ class PlayerPresenter @Inject constructor(
     }
 
     override fun bindPlayerService() {
-        playerInteractor.bindPlayerService()
+        playerInteractor.bindPlayerService {
+            playerInteractor.addPlayerStateObserver(observer)
+        }
     }
 
     override fun unbindPlayerService() {
@@ -45,7 +97,7 @@ class PlayerPresenter @Inject constructor(
 
     override fun onBackPressed() {}
 
-    override fun checkSeek() {
+    override fun checkSeek(seekModel: SeekModel) {
         val currentEpisode = playerInteractor.getCurrentEpisode()
 
         if (episode != currentEpisode) {
@@ -54,19 +106,14 @@ class PlayerPresenter @Inject constructor(
             updateEpisodeInfo()
         }
 
-        if (playerInteractor.statePlaying) {
-            viewState.apply {
-                updateSeek(
-                        playerInteractor.getProgress(),
-                        playerInteractor.getBuffered(),
-                        playerInteractor.getCurrentPosition()
-                )
-                updateDuration(playerInteractor.getDuration(), playerInteractor.getDurationSec())
-                updateCurrentTimeLabel()
-                showPauseButton()
-            }
-        } else {
-            viewState.showPlayButton()
+        viewState.apply {
+            updateSeek(
+                    seekModel.currentPositionInSeconds,
+                    seekModel.buffer,
+                    seekModel.currentPositionTextFormatted
+            )
+            updateDuration(seekModel.durationTextFormatted, seekModel.durationInSeconds)
+            updateCurrentTimeLabel(seekModel)
         }
     }
 
@@ -105,13 +152,13 @@ class PlayerPresenter @Inject constructor(
         }
     }
 
-    override fun updateCurrentTimeLabel() {
-        val timeLabel = playerInteractor.getCurrentTimeLabel()
+    override fun updateCurrentTimeLabel(seekModel: SeekModel) {
+        val timeLabel = seekModel.currentTimeLabel
 
         if (currentTimeLabel != timeLabel) {
             currentTimeLabel = timeLabel
 
-            val timeLabelPosition = playerInteractor.getCurrentTimeLabelPosition()
+            val timeLabelPosition = seekModel.currentTimeLabelPosition
             viewState.highlightCurrentTimeLabel(timeLabelPosition)
 
             val timeLableTitle = currentTimeLabel?.topic ?: ""
