@@ -9,21 +9,27 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
+import io.reactivex.Single
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.entity.TimeLabel
+import pro.vylgin.radiot.extension.getEpisodeNumber
 import pro.vylgin.radiot.extension.positionInMillis
 import pro.vylgin.radiot.model.data.player.PlayerService
+import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.model.repository.player.PlayerRepository
+import pro.vylgin.radiot.model.system.SchedulersProvider
 import timber.log.Timber
 import javax.inject.Inject
 
 class PlayerInteractor @Inject constructor(
         private val context: Context,
-        private val playerRepository: PlayerRepository
+        private val playerRepository: PlayerRepository,
+        private val entriesInteractor: EntriesInteractor,
+        private val schedulers: SchedulersProvider
 ) {
     lateinit var playerServiceBinder: PlayerService.PlayerServiceBinder
     lateinit var mediaController: MediaControllerCompat
-    var statePlaying: Boolean = false
+    lateinit var serviceConnectionCallback: () -> Unit
 
     private val playerServiceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -35,9 +41,9 @@ class PlayerInteractor @Inject constructor(
                         if (state == null) {
                             return
                         }
-                        statePlaying = state.state == PlaybackStateCompat.STATE_PLAYING
                     }
                 })
+                serviceConnectionCallback.invoke()
             } catch (e: RemoteException) {
                 Timber.e(e)
             }
@@ -48,7 +54,21 @@ class PlayerInteractor @Inject constructor(
         }
     }
 
-    fun bindPlayerService() {
+    fun getLastPlayedEpisode(): Single<Entry?> {
+        val currentEpisode = playerRepository.currentEpisode
+        return if (currentEpisode != null) {
+            Single.just(currentEpisode)
+        } else {
+            val lastEpisodeNumber = playerRepository.getLastEpisodeNumber()
+            entriesInteractor.getEpisode(lastEpisodeNumber)
+                    .doOnSuccess {
+                        playerRepository.currentEpisode = it
+                    }
+        }
+    }
+
+    fun bindPlayerService(callback: () -> Unit) {
+        serviceConnectionCallback = callback
         context.bindService(Intent(context, PlayerService::class.java), playerServiceConnection, Context.BIND_AUTO_CREATE)
     }
 
@@ -56,8 +76,14 @@ class PlayerInteractor @Inject constructor(
         context.unbindService(playerServiceConnection)
     }
 
+    fun getCurrentEpisode(): Entry? {
+        return playerRepository.currentEpisode
+    }
+
     fun playEpisode(episode: Entry) {
         playerRepository.currentEpisode = episode
+        playerRepository.saveLastEpisodeNumber(episode.getEpisodeNumber())
+
         mediaController.transportControls.stop()
         mediaController.transportControls.play()
     }
@@ -78,52 +104,27 @@ class PlayerInteractor @Inject constructor(
         if (playerRepository.currentEpisode != episode) {
             playEpisode(episode)
         }
-        Handler().postDelayed({playerServiceBinder.seekTo(timeLabel.positionInMillis())}, 150)
+        Handler().postDelayed({ playerServiceBinder.seekTo(timeLabel.positionInMillis()) }, 150)
     }
 
-    fun seekTo(positionMs: Long) {
-        playerServiceBinder.seekTo(positionMs)
-    }
+    fun seekTo(positionMs: Long) = playerServiceBinder.seekTo(positionMs)
 
-    fun getProgress(): Int {
-        return playerServiceBinder.getProgress()
-    }
+    fun playNextTimeLabel() = playerServiceBinder.playNextTimeLabel()
 
-    fun getBuffered(): Int {
-        return playerServiceBinder.getBuffered()
-    }
 
-    fun getCurrentPosition(): String {
-        return playerServiceBinder.getCurrentPosition()
-    }
+    fun playPrevTimeLabel() = playerServiceBinder.playPrevTimeLabel()
 
-    fun getDuration(): String {
-        return playerServiceBinder.getDuration()
-    }
+    fun getPlayerObservable() = playerServiceBinder.getPlayerObservable()
+            .observeOn(schedulers.ui())
+            .doOnNext {
+                if (it.currentPositionInSeconds % 10 == 0) {
+                    playerRepository.saveSeekModel(it)
+                }
+            }
 
-    fun getDurationSec(): Int {
-        return playerServiceBinder.getDurationSec()
-    }
+    fun getPlayerStateObservable() = playerServiceBinder.getPlayerStateObservable()
+            .observeOn(schedulers.ui())
 
-    fun getCurrentEpisode(): Entry? {
-        return playerRepository.currentEpisode
-    }
-
-    fun getCurrentTimeLabel(): TimeLabel? {
-        return playerServiceBinder.getCurrentTimeLabel()
-    }
-
-    fun getCurrentTimeLabelPosition(): Int {
-        return playerServiceBinder.getCurrentTimeLabelPosition()
-    }
-
-    fun playNextTimeLabel() {
-        playerServiceBinder.playNextTimeLabel()
-    }
-
-    fun playPrevTimeLabel() {
-        playerServiceBinder.playPrevTimeLabel()
-    }
-
+    fun getSavedSeedModel() = playerRepository.getSeekModel()
 
 }

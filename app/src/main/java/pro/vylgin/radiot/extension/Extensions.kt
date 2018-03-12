@@ -148,3 +148,7 @@ fun Entry.isEmpty(): Boolean {
 fun Entry.isNotEmpty(): Boolean {
     return url.isNotEmpty()
 }
+
+fun Entry.getEpisodeNumber(): Int {
+    return title.split(" ".toRegex())[1].toInt()
+}

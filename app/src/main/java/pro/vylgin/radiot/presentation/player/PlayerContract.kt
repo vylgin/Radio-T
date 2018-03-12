@@ -1,6 +1,7 @@
 package pro.vylgin.radiot.presentation.player
 
 import pro.vylgin.radiot.entity.TimeLabel
+import pro.vylgin.radiot.model.data.player.SeekModel
 
 interface PlayerContract {
 
@@ -28,11 +29,11 @@ interface PlayerContract {
         fun bindPlayerService()
         fun unbindPlayerService()
         fun onBackPressed()
-        fun checkSeek()
+        fun checkSeek(seekModel: SeekModel)
         fun updateEpisodeInfo()
         fun checkNeedShowPlayerPanel()
         fun showTimeLabelsOrShowNotes()
-        fun updateCurrentTimeLabel()
+        fun updateCurrentTimeLabel(seekModel: SeekModel)
         fun seekTo(positionMs: Long)
         fun seekTo(timeLabel: TimeLabel)
         fun playEpisode()

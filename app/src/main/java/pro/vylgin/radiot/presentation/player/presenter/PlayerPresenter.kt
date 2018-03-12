@@ -3,10 +3,13 @@ package pro.vylgin.radiot.presentation.player.presenter
 import com.arellomobile.mvp.InjectViewState
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.entity.TimeLabel
+import pro.vylgin.radiot.model.data.player.PlayerState
+import pro.vylgin.radiot.model.data.player.SeekModel
 import pro.vylgin.radiot.model.interactor.player.PlayerInteractor
 import pro.vylgin.radiot.presentation.global.presenter.BasePresenter
 import pro.vylgin.radiot.presentation.player.PlayerContract
 import pro.vylgin.radiot.presentation.player.view.PlayerView
+import timber.log.Timber
 import javax.inject.Inject
 
 @InjectViewState
@@ -23,29 +26,67 @@ class PlayerPresenter @Inject constructor(
     }
 
     override fun init() {
-        episode = playerInteractor.getCurrentEpisode()
-
-        checkNeedShowPlayerPanel()
-        updateEpisodeInfo()
-        bindPlayerService()
+        playerInteractor.getLastPlayedEpisode()
+                .subscribe(
+                        {
+                            episode = it
+                            initPlayer()
+                        },
+                        {
+                            initPlayer()
+                        }
+                ).connect()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unbindPlayerService()
+    private fun initPlayer() {
+        bindPlayerService()
+        checkNeedShowPlayerPanel()
+        updateEpisodeInfo()
     }
 
     override fun bindPlayerService() {
-        playerInteractor.bindPlayerService()
+        playerInteractor.bindPlayerService {
+            playerInteractor.getPlayerStateObservable()
+                    .subscribe {
+                        val playerState = it ?: return@subscribe
+                        Timber.d("playerState = $playerState")
+                        proceedPlayerState(playerState)
+                    }.connect()
+        }
+    }
+
+    private fun proceedPlayerState(playerState: PlayerState) {
+        when (playerState) {
+            PlayerState.STOPPED -> {
+                viewState.showPlayButton()
+                checkSeek(playerInteractor.getSavedSeedModel())
+            }
+            PlayerState.PAUSED -> {
+                viewState.showPlayButton()
+            }
+            PlayerState.PLAYING -> {
+                viewState.showPauseButton()
+                playerInteractor.getPlayerObservable()
+                        .subscribe {
+                            checkSeek(it)
+                        }.connect()
+            }
+        }
     }
 
     override fun unbindPlayerService() {
         playerInteractor.unbindPlayerService()
     }
 
-    override fun onBackPressed() {}
+    override fun checkNeedShowPlayerPanel() {
+        if (episode == null) {
+            viewState.hidePlayerPanel()
+        } else {
+            viewState.showPlayerPanel()
+        }
+    }
 
-    override fun checkSeek() {
+    override fun checkSeek(seekModel: SeekModel) {
         val currentEpisode = playerInteractor.getCurrentEpisode()
 
         if (episode != currentEpisode) {
@@ -54,19 +95,14 @@ class PlayerPresenter @Inject constructor(
             updateEpisodeInfo()
         }
 
-        if (playerInteractor.statePlaying) {
-            viewState.apply {
-                updateSeek(
-                        playerInteractor.getProgress(),
-                        playerInteractor.getBuffered(),
-                        playerInteractor.getCurrentPosition()
-                )
-                updateDuration(playerInteractor.getDuration(), playerInteractor.getDurationSec())
-                updateCurrentTimeLabel()
-                showPauseButton()
-            }
-        } else {
-            viewState.showPlayButton()
+        viewState.apply {
+            updateDuration(seekModel.durationTextFormatted, seekModel.durationInSeconds)
+            updateSeek(
+                    seekModel.currentPositionInSeconds,
+                    seekModel.buffer,
+                    seekModel.currentPositionTextFormatted
+            )
+            updateCurrentTimeLabel(seekModel)
         }
     }
 
@@ -85,14 +121,6 @@ class PlayerPresenter @Inject constructor(
         }
     }
 
-    override fun checkNeedShowPlayerPanel() {
-        if (episode == null) {
-            viewState.hidePlayerPanel()
-        } else {
-            viewState.showPlayerPanel()
-        }
-    }
-
     override fun showTimeLabelsOrShowNotes() {
         val timeLabels = episode?.timeLabels
         if (timeLabels != null) {
@@ -105,17 +133,16 @@ class PlayerPresenter @Inject constructor(
         }
     }
 
-    override fun updateCurrentTimeLabel() {
-        val timeLabel = playerInteractor.getCurrentTimeLabel()
+    override fun updateCurrentTimeLabel(seekModel: SeekModel) {
+        val timeLabelPosition = seekModel.currentTimeLabelPosition
+        viewState.highlightCurrentTimeLabel(timeLabelPosition)
 
+        val timeLabel = seekModel.currentTimeLabel
         if (currentTimeLabel != timeLabel) {
             currentTimeLabel = timeLabel
 
-            val timeLabelPosition = playerInteractor.getCurrentTimeLabelPosition()
-            viewState.highlightCurrentTimeLabel(timeLabelPosition)
-
-            val timeLableTitle = currentTimeLabel?.topic ?: ""
-            viewState.updateCurrentTimeLabelTitle(timeLableTitle)
+            val timeLabelTitle = currentTimeLabel?.topic ?: ""
+            viewState.updateCurrentTimeLabelTitle(timeLabelTitle)
         }
     }
 
@@ -145,6 +172,13 @@ class PlayerPresenter @Inject constructor(
     override fun playPrevTopic() {
         playerInteractor.playPrevTimeLabel()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unbindPlayerService()
+    }
+
+    override fun onBackPressed() {}
 
 }
 

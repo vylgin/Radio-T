@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import pro.vylgin.radiot.model.data.server.RadioTApi
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
+import pro.vylgin.radiot.model.interactor.player.PlayerInteractor
 import pro.vylgin.radiot.model.repository.entry.EntryRepository
 import pro.vylgin.radiot.presentation.global.presenter.ErrorHandler
 import pro.vylgin.radiot.toothpick.provider.ApiProvider
@@ -27,5 +28,8 @@ class ServerModule(serverUrl: String) : Module() {
         //Entry
         bind(EntryRepository::class.java).singletonInScope()
         bind(EntriesInteractor::class.java).singletonInScope()
+
+        //Player
+        bind(PlayerInteractor::class.java).singletonInScope()
     }
 }

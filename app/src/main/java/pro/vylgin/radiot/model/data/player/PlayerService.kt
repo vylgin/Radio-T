@@ -13,7 +13,6 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Binder
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.NotificationManagerCompat
@@ -40,6 +39,9 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.google.android.exoplayer2.util.Util
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
 import pro.vylgin.radiot.R
 import pro.vylgin.radiot.entity.Entry
@@ -51,14 +53,13 @@ import pro.vylgin.radiot.toothpick.DI
 import timber.log.Timber
 import toothpick.Toothpick
 import java.io.File
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class PlayerService : Service() {
 
     private val NOTIFICATION_ID = 404
     private val NOTIFICATION_DEFAULT_CHANNEL_ID = "radiot_channel"
-
-    private val seekDelay: Long = 1000
 
     private val metadataBuilder = MediaMetadataCompat.Builder()
 
@@ -81,58 +82,35 @@ class PlayerService : Service() {
     private lateinit var extractorsFactory: ExtractorsFactory
     private lateinit var dataSourceFactory: DataSource.Factory
 
+    private var currentUri: Uri? = null
+    private var currentState = PlaybackStateCompat.STATE_STOPPED
+
     @Inject
     lateinit var playerRepository: PlayerRepository
 
-    private val seekHandler = Handler()
-    private val seekRunnable = object : Runnable {
-        override fun run() {
-            updateNotificationTimeLabel()
-            NotificationManagerCompat.from(this@PlayerService).notify(NOTIFICATION_ID, getNotification(exoPlayer.playbackState))
-            seekHandler.postDelayed(this, seekDelay)
-        }
-    }
+    private var playerDisposable: Disposable? = null
+
+    private val playerStateSubject: BehaviorSubject<PlayerState> = BehaviorSubject.createDefault(PlayerState.STOPPED)
+
+    private val playerObservable = Observable
+            .interval(1, TimeUnit.SECONDS)
+            .flatMap {
+                val seekModel = SeekModel(
+                        getDurationTextFormatted(),
+                        getDurationInSeconds(),
+                        getCurrentPositionTextFormatted(),
+                        getCurrentPositionInSeconds(),
+                        getCurrentTimeLabel(),
+                        getCurrentTimeLabelPosition(),
+                        getBuffer()
+                )
+                Observable.just(seekModel)
+            }
 
     private val mediaSessionCallback: MediaSessionCompat.Callback = object : MediaSessionCompat.Callback() {
-        private var currentUri: Uri? = null
-        internal var currentState = PlaybackStateCompat.STATE_STOPPED
 
         override fun onPlay() {
-            val episode: Entry = playerRepository.currentEpisode ?: return
-
-            updateMetadataFromTrack(episode) {
-                if (!exoPlayer.playWhenReady) {
-                    startService(Intent(applicationContext, PlayerService::class.java))
-
-                    prepareToPlay(episode.audioUrl ?: "")
-
-                    if (!audioFocusRequested) {
-                        audioFocusRequested = true
-
-                        val audioFocusResult: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            audioManager.requestAudioFocus(audioFocusRequest)
-                        } else {
-                            audioManager.requestAudioFocus(audioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
-                        }
-                        if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
-                            return@updateMetadataFromTrack
-                    }
-
-                    mediaSession.isActive = true
-
-                    registerReceiver(becomingNoisyReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
-
-                    exoPlayer.playWhenReady = true
-                }
-
-                mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1f).build())
-                currentState = PlaybackStateCompat.STATE_PLAYING
-
-                refreshNotificationAndForegroundStatus(currentState)
-
-                seekHandler.removeCallbacks(seekRunnable)
-                seekHandler.post(seekRunnable)
-            }
+            this@PlayerService.play(true)
         }
 
         override fun onPause() {
@@ -146,7 +124,9 @@ class PlayerService : Service() {
 
             refreshNotificationAndForegroundStatus(currentState)
 
-            seekHandler.removeCallbacks(seekRunnable)
+            playerDisposable?.dispose()
+
+            playerStateSubject.onNext(PlayerState.PAUSED)
         }
 
         override fun onStop() {
@@ -174,7 +154,9 @@ class PlayerService : Service() {
 
             stopSelf()
 
-            seekHandler.removeCallbacks(seekRunnable)
+            playerDisposable?.dispose()
+
+            playerStateSubject.onNext(PlayerState.STOPPED)
         }
 
         override fun onSkipToNext() {
@@ -184,48 +166,11 @@ class PlayerService : Service() {
         override fun onSkipToPrevious() {
             playPrevTimeLabel()
         }
-
-        private fun prepareToPlay(srcUrl: String) {
-            val uri = Uri.parse(srcUrl)
-
-            if (uri != currentUri) {
-                currentUri = uri
-                val mediaSource = ExtractorMediaSource(uri, dataSourceFactory, extractorsFactory, null, null)
-                exoPlayer.prepare(mediaSource)
-            }
-        }
-
-        private fun updateMetadataFromTrack(episode: Entry, callback: () -> Unit) {
-            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, episode.title)
-            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, resources.getString(R.string.app_name))
-
-            if (episode.image == null) {
-                metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
-                        BitmapFactory.decodeResource(resources, R.drawable.exo_controls_play))
-                mediaSession.setMetadata(metadataBuilder.build())
-                callback.invoke()
-            } else {
-                Glide.with(this@PlayerService)
-                        .asBitmap()
-                        .load(episode.image)
-                        .into(object : SimpleTarget<Bitmap>() {
-                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>) {
-                                metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, resource)
-                                mediaSession.setMetadata(metadataBuilder.build())
-                                callback.invoke()
-                            }
-                        })
-            }
-        }
     }
 
-    private fun updateNotificationTimeLabel() {
-        val episode = playerRepository.currentEpisode ?: return
-
-        if (episode.timeLabels != null) {
-            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, getCurrentTimeLabel()?.topic)
-            mediaSession.setMetadata(metadataBuilder.build())
-        }
+    private fun updateNotificationTimeLabel(seekModel: SeekModel) {
+        metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, seekModel.currentTimeLabel?.topic)
+        mediaSession.setMetadata(metadataBuilder.build())
     }
 
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
@@ -256,7 +201,7 @@ class PlayerService : Service() {
 
         override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
             if (playWhenReady && playbackState == ExoPlayer.STATE_ENDED) {
-                mediaSessionCallback.onSkipToNext()
+//                mediaSessionCallback.onSkipToNext()
             }
         }
 
@@ -271,6 +216,7 @@ class PlayerService : Service() {
         super.onCreate()
         Toothpick.inject(this, Toothpick.openScope(DI.APP_SCOPE))
         initPlayer()
+        play(false)
     }
 
     private fun initPlayer() {
@@ -316,16 +262,104 @@ class PlayerService : Service() {
         this.extractorsFactory = DefaultExtractorsFactory()
     }
 
+    private fun play(playWhenReady: Boolean) {
+        val episode: Entry = playerRepository.currentEpisode ?: return
+
+        updateMetadataFromTrack(episode) {
+            if (!exoPlayer.playWhenReady) {
+                startService(Intent(applicationContext, PlayerService::class.java))
+
+                prepareToPlay(episode.audioUrl ?: "")
+
+                if (!audioFocusRequested) {
+                    audioFocusRequested = true
+
+                    val audioFocusResult: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        audioManager.requestAudioFocus(audioFocusRequest)
+                    } else {
+                        audioManager.requestAudioFocus(audioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+                    }
+                    if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
+                        return@updateMetadataFromTrack
+                }
+
+                mediaSession.isActive = true
+
+                registerReceiver(becomingNoisyReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
+
+                exoPlayer.playWhenReady = playWhenReady
+            }
+
+            mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1f).build())
+
+            if (playWhenReady) {
+                currentState = PlaybackStateCompat.STATE_PLAYING
+
+                playerStateSubject.onNext(PlayerState.PLAYING)
+
+                if (playerDisposable != null) {
+                    playerDisposable?.dispose()
+                }
+                playerDisposable = playerObservable.subscribe {
+                    updateNotificationTimeLabel(it)
+                    NotificationManagerCompat.from(this@PlayerService).notify(NOTIFICATION_ID, getNotification(exoPlayer.playbackState))
+
+                    Timber.d("seekModel = $it")
+                }
+            } else {
+                seekTo(playerRepository.getSeekModel().currentPositionInSeconds.toLong() * 1000)
+                updateNotificationTimeLabel(playerRepository.getSeekModel())
+                NotificationManagerCompat.from(this@PlayerService).notify(NOTIFICATION_ID, getNotification(exoPlayer.playbackState))
+            }
+
+            refreshNotificationAndForegroundStatus(currentState)
+        }
+    }
+
+    private fun prepareToPlay(srcUrl: String) {
+        val uri = Uri.parse(srcUrl)
+
+        if (uri != currentUri) {
+            currentUri = uri
+            val mediaSource = ExtractorMediaSource(uri, dataSourceFactory, extractorsFactory, null, null)
+            exoPlayer.prepare(mediaSource)
+        }
+    }
+
+    private fun updateMetadataFromTrack(episode: Entry, callback: () -> Unit) {
+        metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, episode.title)
+        metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, resources.getString(R.string.app_name))
+
+        if (episode.image == null) {
+            metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
+                    BitmapFactory.decodeResource(resources, R.drawable.exo_controls_play))
+            mediaSession.setMetadata(metadataBuilder.build())
+            callback.invoke()
+        } else {
+            Glide.with(this@PlayerService)
+                    .asBitmap()
+                    .load(episode.image)
+                    .into(object : SimpleTarget<Bitmap>() {
+                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>) {
+                            metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, resource)
+                            mediaSession.setMetadata(metadataBuilder.build())
+                            callback.invoke()
+                        }
+                    })
+        }
+    }
+
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         MediaButtonReceiver.handleIntent(mediaSession, intent)
-        return super.onStartCommand(intent, flags, startId)
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        seekHandler.removeCallbacks(seekRunnable)
+        playerDisposable?.dispose()
         mediaSession.release()
         exoPlayer.release()
+        playerStateSubject.onComplete()
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -337,55 +371,7 @@ class PlayerService : Service() {
             get() = mediaSession.sessionToken
 
         fun seekTo(positionMs: Long) {
-            exoPlayer.seekTo(positionMs)
-        }
-
-        fun getCurrentPosition(): String {
-            val millis = exoPlayer.currentPosition
-
-            val seconds = (millis / 1000).toInt() % 60
-            val minutes = (millis / (1000 * 60) % 60).toInt()
-            val hours = (millis / (1000 * 60 * 60) % 24).toInt()
-
-            return String.format("%d:%02d:%02d", hours, minutes, seconds)
-        }
-
-        fun getBufferedPercentage(): Int {
-            return exoPlayer.bufferedPercentage
-        }
-
-        fun getProgress(): Int {
-            return (exoPlayer.currentPosition / 1000).toInt()
-        }
-
-        fun getBuffered(): Int {
-            return (exoPlayer.bufferedPercentage / 100.0 * exoPlayer.duration / 1000.0).toInt()
-        }
-
-        fun getDuration(): String {
-            val millis = exoPlayer.duration
-
-            val seconds = (millis / 1000).toInt() % 60
-            val minutes = (millis / (1000 * 60) % 60).toInt()
-            val hours = (millis / (1000 * 60 * 60) % 24).toInt()
-
-            return String.format("%d:%02d:%02d", hours, minutes, seconds)
-        }
-
-        fun getDurationSec(): Int {
-            return (exoPlayer.duration / 1000).toInt()
-        }
-
-        fun getCurrentPositionSec(): Int {
-            return this@PlayerService.getCurrentPositionSec()
-        }
-
-        fun getCurrentTimeLabel(): TimeLabel? {
-            return this@PlayerService.getCurrentTimeLabel()
-        }
-
-        fun getCurrentTimeLabelPosition(): Int {
-            return this@PlayerService.getCurrentTimeLabelPosition()
+            this@PlayerService.seekTo(positionMs)
         }
 
         fun playNextTimeLabel() {
@@ -395,6 +381,44 @@ class PlayerService : Service() {
         fun playPrevTimeLabel() {
             this@PlayerService.playPrevTimeLabel()
         }
+
+        fun getPlayerObservable() = playerObservable
+
+        fun getPlayerStateObservable(): Observable<PlayerState> {
+            return playerStateSubject
+        }
+    }
+
+    private fun getCurrentPositionTextFormatted(): String {
+        val millis = exoPlayer.currentPosition
+
+        val seconds = (millis / 1000).toInt() % 60
+        val minutes = (millis / (1000 * 60) % 60).toInt()
+        val hours = (millis / (1000 * 60 * 60) % 24).toInt()
+
+        return String.format("%d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    private fun getDurationTextFormatted(): String {
+        val millis = exoPlayer.duration
+
+        val seconds = (millis / 1000).toInt() % 60
+        val minutes = (millis / (1000 * 60) % 60).toInt()
+        val hours = (millis / (1000 * 60 * 60) % 24).toInt()
+
+        return String.format("%d:%02d:%02d", hours, minutes, seconds)
+    }
+
+    private fun getDurationInSeconds(): Int {
+        return (exoPlayer.duration / 1000).toInt()
+    }
+
+    private fun getBuffer(): Int {
+        return (exoPlayer.bufferedPercentage / 100.0 * exoPlayer.duration / 1000.0).toInt()
+    }
+
+    private fun seekTo(positionMs: Long) {
+        exoPlayer.seekTo(positionMs)
     }
 
     private fun playNextTimeLabel() {
@@ -407,13 +431,13 @@ class PlayerService : Service() {
         exoPlayer.seekTo(prevTimeLabel.positionInMillis())
     }
 
-    private fun getCurrentPositionSec(): Int {
+    private fun getCurrentPositionInSeconds(): Int {
         return (exoPlayer.currentPosition / 1000).toInt()
     }
 
     private fun getCurrentTimeLabel(): TimeLabel? {
         val timeLabels = playerRepository.currentEpisode?.timeLabels ?: return null
-        val currentPosition = getCurrentPositionSec()
+        val currentPosition = getCurrentPositionInSeconds()
 
         for (timeLabel in timeLabels) {
             val currentPositionSec = timeLabel.positionInMillis() / 1000

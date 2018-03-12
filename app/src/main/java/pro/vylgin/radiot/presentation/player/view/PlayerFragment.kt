@@ -2,7 +2,6 @@ package pro.vylgin.radiot.presentation.player.view
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.SeekBar
@@ -25,8 +24,6 @@ import toothpick.Toothpick
 class PlayerFragment : BaseFragment(), PlayerView {
 
     override val layoutRes = R.layout.fragment_player
-
-    private val seekDelay: Long = 1000
 
     @InjectPresenter lateinit var presenter: PlayerPresenter
 
@@ -57,9 +54,6 @@ class PlayerFragment : BaseFragment(), PlayerView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        seekHandler.removeCallbacks(seekRunnable)
-        seekHandler.post(seekRunnable)
 
         initSeekBar()
 
@@ -98,14 +92,6 @@ class PlayerFragment : BaseFragment(), PlayerView {
                 seekOverThumbTV.visibility = View.GONE
             }
         })
-    }
-
-    private val seekHandler = Handler()
-    private val seekRunnable = object : Runnable {
-        override fun run() {
-            presenter.checkSeek()
-            seekHandler.postDelayed(this, seekDelay)
-        }
     }
 
     override fun updateSeek(progress: Int, buffered: Int, currentTime: String) {
@@ -221,8 +207,4 @@ class PlayerFragment : BaseFragment(), PlayerView {
 
     override fun onBackPressed() = presenter.onBackPressed()
 
-    override fun onDetach() {
-        super.onDetach()
-        seekHandler.removeCallbacks(seekRunnable)
-    }
 }
