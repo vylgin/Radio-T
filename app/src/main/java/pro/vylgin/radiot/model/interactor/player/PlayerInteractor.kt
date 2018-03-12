@@ -9,14 +9,12 @@ import android.os.IBinder
 import android.os.RemoteException
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import io.reactivex.Observer
 import io.reactivex.Single
 import pro.vylgin.radiot.entity.Entry
 import pro.vylgin.radiot.entity.TimeLabel
 import pro.vylgin.radiot.extension.getEpisodeNumber
 import pro.vylgin.radiot.extension.positionInMillis
 import pro.vylgin.radiot.model.data.player.PlayerService
-import pro.vylgin.radiot.model.data.player.PlayerState
 import pro.vylgin.radiot.model.interactor.entries.EntriesInteractor
 import pro.vylgin.radiot.model.repository.player.PlayerRepository
 import pro.vylgin.radiot.model.system.SchedulersProvider
@@ -116,9 +114,17 @@ class PlayerInteractor @Inject constructor(
 
     fun playPrevTimeLabel() = playerServiceBinder.playPrevTimeLabel()
 
-    fun getPlayerObserver() = playerServiceBinder.getPlayerObservable()
+    fun getPlayerObservable() = playerServiceBinder.getPlayerObservable()
+            .observeOn(schedulers.ui())
+            .doOnNext {
+                if (it.currentPositionInSeconds % 10 == 0) {
+                    playerRepository.saveSeekModel(it)
+                }
+            }
+
+    fun getPlayerStateObservable() = playerServiceBinder.getPlayerStateObservable()
             .observeOn(schedulers.ui())
 
-    fun addPlayerStateObserver(stateObserver: Observer<PlayerState>) = playerServiceBinder.addPlayerStateObserver(stateObserver)
+    fun getSavedSeedModel() = playerRepository.getSeekModel()
 
 }

@@ -40,7 +40,6 @@ import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvicto
 import com.google.android.exoplayer2.upstream.cache.SimpleCache
 import com.google.android.exoplayer2.util.Util
 import io.reactivex.Observable
-import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
 import okhttp3.OkHttpClient
@@ -83,6 +82,9 @@ class PlayerService : Service() {
     private lateinit var extractorsFactory: ExtractorsFactory
     private lateinit var dataSourceFactory: DataSource.Factory
 
+    private var currentUri: Uri? = null
+    private var currentState = PlaybackStateCompat.STATE_STOPPED
+
     @Inject
     lateinit var playerRepository: PlayerRepository
 
@@ -106,55 +108,9 @@ class PlayerService : Service() {
             }
 
     private val mediaSessionCallback: MediaSessionCompat.Callback = object : MediaSessionCompat.Callback() {
-        private var currentUri: Uri? = null
-        internal var currentState = PlaybackStateCompat.STATE_STOPPED
 
         override fun onPlay() {
-            val episode: Entry = playerRepository.currentEpisode ?: return
-
-            updateMetadataFromTrack(episode) {
-                if (!exoPlayer.playWhenReady) {
-                    startService(Intent(applicationContext, PlayerService::class.java))
-
-                    prepareToPlay(episode.audioUrl ?: "")
-
-                    if (!audioFocusRequested) {
-                        audioFocusRequested = true
-
-                        val audioFocusResult: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            audioManager.requestAudioFocus(audioFocusRequest)
-                        } else {
-                            audioManager.requestAudioFocus(audioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
-                        }
-                        if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
-                            return@updateMetadataFromTrack
-                    }
-
-                    mediaSession.isActive = true
-
-                    registerReceiver(becomingNoisyReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
-
-                    exoPlayer.playWhenReady = true
-                }
-
-                mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1f).build())
-                currentState = PlaybackStateCompat.STATE_PLAYING
-
-                refreshNotificationAndForegroundStatus(currentState)
-
-                if (playerDisposable != null) {
-                    playerDisposable?.dispose()
-                }
-
-                playerDisposable = playerObservable.subscribe {
-                    updateNotificationTimeLabel(it)
-                    NotificationManagerCompat.from(this@PlayerService).notify(NOTIFICATION_ID, getNotification(exoPlayer.playbackState))
-
-                    Timber.d("seekModel = $it")
-                }
-
-                playerStateSubject.onNext(PlayerState.PLAYING)
-            }
+            this@PlayerService.play(true)
         }
 
         override fun onPause() {
@@ -210,48 +166,11 @@ class PlayerService : Service() {
         override fun onSkipToPrevious() {
             playPrevTimeLabel()
         }
-
-        private fun prepareToPlay(srcUrl: String) {
-            val uri = Uri.parse(srcUrl)
-
-            if (uri != currentUri) {
-                currentUri = uri
-                val mediaSource = ExtractorMediaSource(uri, dataSourceFactory, extractorsFactory, null, null)
-                exoPlayer.prepare(mediaSource)
-            }
-        }
-
-        private fun updateMetadataFromTrack(episode: Entry, callback: () -> Unit) {
-            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, episode.title)
-            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, resources.getString(R.string.app_name))
-
-            if (episode.image == null) {
-                metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
-                        BitmapFactory.decodeResource(resources, R.drawable.exo_controls_play))
-                mediaSession.setMetadata(metadataBuilder.build())
-                callback.invoke()
-            } else {
-                Glide.with(this@PlayerService)
-                        .asBitmap()
-                        .load(episode.image)
-                        .into(object : SimpleTarget<Bitmap>() {
-                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>) {
-                                metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, resource)
-                                mediaSession.setMetadata(metadataBuilder.build())
-                                callback.invoke()
-                            }
-                        })
-            }
-        }
     }
 
     private fun updateNotificationTimeLabel(seekModel: SeekModel) {
-        val episode = playerRepository.currentEpisode ?: return
-
-        if (episode.timeLabels != null) {
-            metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, seekModel.currentTimeLabel?.topic)
-            mediaSession.setMetadata(metadataBuilder.build())
-        }
+        metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, seekModel.currentTimeLabel?.topic)
+        mediaSession.setMetadata(metadataBuilder.build())
     }
 
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
@@ -297,6 +216,7 @@ class PlayerService : Service() {
         super.onCreate()
         Toothpick.inject(this, Toothpick.openScope(DI.APP_SCOPE))
         initPlayer()
+        play(false)
     }
 
     private fun initPlayer() {
@@ -342,9 +262,96 @@ class PlayerService : Service() {
         this.extractorsFactory = DefaultExtractorsFactory()
     }
 
+    private fun play(playWhenReady: Boolean) {
+        val episode: Entry = playerRepository.currentEpisode ?: return
+
+        updateMetadataFromTrack(episode) {
+            if (!exoPlayer.playWhenReady) {
+                startService(Intent(applicationContext, PlayerService::class.java))
+
+                prepareToPlay(episode.audioUrl ?: "")
+
+                if (!audioFocusRequested) {
+                    audioFocusRequested = true
+
+                    val audioFocusResult: Int = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        audioManager.requestAudioFocus(audioFocusRequest)
+                    } else {
+                        audioManager.requestAudioFocus(audioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+                    }
+                    if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED)
+                        return@updateMetadataFromTrack
+                }
+
+                mediaSession.isActive = true
+
+                registerReceiver(becomingNoisyReceiver, IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY))
+
+                exoPlayer.playWhenReady = playWhenReady
+            }
+
+            mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1f).build())
+
+            if (playWhenReady) {
+                currentState = PlaybackStateCompat.STATE_PLAYING
+
+                playerStateSubject.onNext(PlayerState.PLAYING)
+
+                if (playerDisposable != null) {
+                    playerDisposable?.dispose()
+                }
+                playerDisposable = playerObservable.subscribe {
+                    updateNotificationTimeLabel(it)
+                    NotificationManagerCompat.from(this@PlayerService).notify(NOTIFICATION_ID, getNotification(exoPlayer.playbackState))
+
+                    Timber.d("seekModel = $it")
+                }
+            } else {
+                seekTo(playerRepository.getSeekModel().currentPositionInSeconds.toLong() * 1000)
+                updateNotificationTimeLabel(playerRepository.getSeekModel())
+                NotificationManagerCompat.from(this@PlayerService).notify(NOTIFICATION_ID, getNotification(exoPlayer.playbackState))
+            }
+
+            refreshNotificationAndForegroundStatus(currentState)
+        }
+    }
+
+    private fun prepareToPlay(srcUrl: String) {
+        val uri = Uri.parse(srcUrl)
+
+        if (uri != currentUri) {
+            currentUri = uri
+            val mediaSource = ExtractorMediaSource(uri, dataSourceFactory, extractorsFactory, null, null)
+            exoPlayer.prepare(mediaSource)
+        }
+    }
+
+    private fun updateMetadataFromTrack(episode: Entry, callback: () -> Unit) {
+        metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, episode.title)
+        metadataBuilder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, resources.getString(R.string.app_name))
+
+        if (episode.image == null) {
+            metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART,
+                    BitmapFactory.decodeResource(resources, R.drawable.exo_controls_play))
+            mediaSession.setMetadata(metadataBuilder.build())
+            callback.invoke()
+        } else {
+            Glide.with(this@PlayerService)
+                    .asBitmap()
+                    .load(episode.image)
+                    .into(object : SimpleTarget<Bitmap>() {
+                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>) {
+                            metadataBuilder.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, resource)
+                            mediaSession.setMetadata(metadataBuilder.build())
+                            callback.invoke()
+                        }
+                    })
+        }
+    }
+
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         MediaButtonReceiver.handleIntent(mediaSession, intent)
-        return super.onStartCommand(intent, flags, startId)
+        return START_NOT_STICKY
     }
 
     override fun onDestroy() {
@@ -352,6 +359,7 @@ class PlayerService : Service() {
         playerDisposable?.dispose()
         mediaSession.release()
         exoPlayer.release()
+        playerStateSubject.onComplete()
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -363,7 +371,7 @@ class PlayerService : Service() {
             get() = mediaSession.sessionToken
 
         fun seekTo(positionMs: Long) {
-            exoPlayer.seekTo(positionMs)
+            this@PlayerService.seekTo(positionMs)
         }
 
         fun playNextTimeLabel() {
@@ -376,8 +384,8 @@ class PlayerService : Service() {
 
         fun getPlayerObservable() = playerObservable
 
-        fun addPlayerStateObserver(stateObserver: Observer<PlayerState>) {
-            this@PlayerService.addPlayerStateObserver(stateObserver)
+        fun getPlayerStateObservable(): Observable<PlayerState> {
+            return playerStateSubject
         }
     }
 
@@ -407,6 +415,10 @@ class PlayerService : Service() {
 
     private fun getBuffer(): Int {
         return (exoPlayer.bufferedPercentage / 100.0 * exoPlayer.duration / 1000.0).toInt()
+    }
+
+    private fun seekTo(positionMs: Long) {
+        exoPlayer.seekTo(positionMs)
     }
 
     private fun playNextTimeLabel() {
@@ -466,10 +478,6 @@ class PlayerService : Service() {
         val timeLabels = currentEpisode.timeLabels ?: return -1
         val currentTimeLabel = getCurrentTimeLabel()
         return timeLabels.indexOf(currentTimeLabel)
-    }
-
-    private fun addPlayerStateObserver(stateObserver: Observer<PlayerState>) {
-        playerStateSubject.subscribe(stateObserver)
     }
 
     private fun refreshNotificationAndForegroundStatus(playbackState: Int) {
